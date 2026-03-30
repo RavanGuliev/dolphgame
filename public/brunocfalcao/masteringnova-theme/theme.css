@@ -1,0 +1,70 @@
+:root {
+  --primary: rgb(254, 1, 129, 1);
+  --primary-dark: rgb(209, 0, 105, 1);
+  --primary-70: rgba(254, 1, 129, 0.7);
+  --primary-50: rgba(254, 1, 129, 0.5);
+  --primary-30: rgba(254, 1, 129, 0.3);
+  --primary-10: rgba(254, 1, 129, 0.1);
+  --logo: #430051;
+  --sidebar-icon: #db34de;
+}
+
+.bg-grad-sidebar {
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    from(rgb(254, 1, 129, 1)),
+    to(#3c4655)
+  );
+
+  background-image: linear-gradient(
+    0deg,
+    rgb(254, 1, 129, 1),
+    rgb(100, 5, 113)
+  );
+}
+
+.admin-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 3px;
+    vertical-align: bottom;
+}
+.sidebar-dropdown>.dropdown-menu li {
+    margin-bottom: 25px;
+    margin-top: 20px;
+}
+.count {
+    display: inline-block;
+    height: 24px;
+    color: white;
+    background-color: #f5573b;
+    text-align: center;
+    line-height: 24px;
+    border-radius: 5px;
+    font-weight: bold;
+    float: right;
+    font-size: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: relative;
+    top: -2px;
+}
+
+[dusk='orders-index-component'] td.w-16 {
+    display: none;
+}
+[dusk='payments-index-component'] td.w-16 {
+    display: none;
+}
+[dusk='order-archives-index-component'] td.w-16 {
+    display: none;
+}
+[dusk='gift-orders-index-component'] td.w-16 {
+    display: none;
+}
+[dusk='payments-index-component'] .nova-index-nova-inline-text input{
+    width: 128px;
+}
+
