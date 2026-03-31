@@ -463,19 +463,27 @@ const readNotification = (id: any, type: any) => {
         </div>
 
         <!-- PC search right parts -->
-        <div class="col-md-4 no-in-mobile">
-          <div class="basket-balance">
+        <div v-if="!user" class="col-md-4 no-in-mobile" style="background-color: red;">
+          <!-- <div class="basket-balance">
             <nuxt-link to="/user/dashboard/orders">
               <i class="fal fa-plus-circle"></i>
               <span>Sifarişlərim</span>
             </nuxt-link>
-          </div>
-          <div class="basket-balance">
+          </div> -->
+          
+          <!-- <div class="basket-balance">
             <nuxt-link to="/payments/online">
               <i class="fal fa-wallet"></i>
-              <span>Balans Yüklə</span>
+              <span>Balans Yüklə</span> 
             </nuxt-link>
-          </div>
+          </div> -->
+                  <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
+                   <a onclick="return false" data-signin="login" style="cursor: pointer"> <img src="../../public/img/icons/login.png"/> Daxil ol</a>
+
+
+
+       
+
         </div>
 
       </div>
