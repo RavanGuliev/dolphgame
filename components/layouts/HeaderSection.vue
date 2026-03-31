@@ -206,7 +206,7 @@ const readNotification = (id: any, type: any) => {
                 </div>
               </div>
               <div v-if="!user" class="header__top__right__social d-inline-block sign-part js-signin-modal-trigger">
-                <!-- <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a> -->
+                <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
                    <ul class="rightlist ">
                     <li>FAQ</li>
                     <li>Blog</li>
