@@ -159,6 +159,19 @@ a:hover {
         max-height: 62px;
         object-fit: cover;
     }
+
+    .nav-item-box {
+        padding: 6px 8px;
+        min-width: 100px;
+    }
+    .nav-text {
+        font-size: 12px;
+    }
+    .icon-bg {
+        width: 35px;
+        height: 35px;
+        margin-right: 5px;
+    }
 }
 
 .header__top__left ul li {
@@ -344,6 +357,12 @@ a:hover {
     margin-right: 0;
 }
 
+#btnsign img{
+    width: 24px;
+    height: 24px;
+
+}
+
 .sign-part a i {
     margin-right: 3px;
 }
@@ -353,8 +372,8 @@ a:hover {
 }
 
 .sign-part a:first-child {
-    background: var(--new-bg-color);
-    color: white;
+     background: var(--new-bg-color);  
+    color: black;
     padding-left: 15px;
     padding-right: 15px;
     border-radius: 5px;
@@ -365,7 +384,7 @@ a:hover {
 }
 
 .sign-part a:last-child {
-    /* background: #495057; */
+    background: #495057; 
     color: black;
     padding-left: 15px;
     padding-right: 15px;
@@ -394,6 +413,35 @@ a:hover {
     animation-duration: 1s;
 }
 
+.upbtn{
+    padding-top: 20px;
+}
+
+.upbtn a:first-child{
+ /* background: var(--new-bg-color);   */
+    color: black;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-right: 5px;
+    transition: 500ms;
+}
+
+.upbtn a:last-child{
+
+     background: #ff4800; 
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    transition: 500ms;
+
+}
+
 .header__top__right .header__top__right__social:last-child:after {
     display: none;
 }
@@ -414,29 +462,62 @@ a:hover {
 
 /* Form wrapper styling */
 .search-wrapper {
-    width: 100%;
-    margin-top: 9px;
+    display: flex;
+    justify-content: center;  
+    align-items: center;  
     position: relative;
+    width: 100%;  
+    height: 100%;  
+}
+.search-part:focus ~ button i {
+    color: #ff4800;  /* Fokuslananda icon rəngi */
+    transform: scale(1.1); /* İconun ölçüsünü bir az böyüdür */
+}
+
+.search-part {
+    width: 60%; 
+    height: 48px;
+    padding: 12px 24px;
+    border-radius: 5px;
+    border: 1px solid #eeeeee;
+    color: #646464;
+    font-size: 16px;
+}
+
+.search-wrapper button {
+    background: none;
+    border: none;
+    position: absolute;
+    right: 18px;
+    top: 18px;
+}
+
+.search-wrapper button i {
+    font-size: 24px;
+    color: grey;
 }
 
 /* Form text input */
 
 .search-wrapper input {
     width: 100%;
-    padding: 18px 5px;
+    height: 48px;
     float: left;
+    padding-top: 12px;
+    padding-right: 24px;
+    padding-left: 12px;
+    padding-left: 24px;
+    
     border-radius: 5px;
     border: 1px solid #eeeeee;
-    padding-left: 15px;
     color: #646464;
-    padding-right: 55px;
     font-size: 16px;
 }
 
 .search-wrapper input:focus {
     outline: 0;
     background: #fff;
-    border: 1px solid gainsboro;
+    border: 1px solid #ff4800;
 }
 
 .search-wrapper input::-webkit-input-placeholder {
@@ -463,7 +544,7 @@ a:hover {
 }
 
 .search-wrapper button i {
-    font-size: 23px;
+    font-size: 24px;
     color: grey;
 }
 
@@ -7347,17 +7428,23 @@ h6,
 
 
 /* New css */
-.quick-nav-section {
-    padding: 15px 0;
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
-}
-
 .quick-nav-wrapper {
     display: flex;
+    flex-wrap: wrap; /* Alt-alta düşməsi üçün */
+    justify-content: start; /* Elementləri mərkəzləşdirir (Əsas budur!) */
+    gap: 10px; /* Elementlər arasındakı məsafəni idarə etmək üçün */
+    padding: 10px 0;
+}
+
+.nav-item-box {
+    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    flex: 0 1 auto; 
+    padding: 8px 12px;
+    background: #fff; 
+    border-radius: 12px;
+  
+    min-width: fit-content; 
 }
 
 .nav-item-box {
@@ -7417,9 +7504,11 @@ h6,
 .nav-text {
     font-weight: 600;
     font-size: 14px;
-    white-space: nowrap;
+    /* Yazıların qırılmaması üçün vacibdir */
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; /* Əgər yer çox daralarsa, yazı "..." ilə bitsin */
 }
-
 .arrow-icon {
     font-size: 12px;
     margin-left: 8px;
@@ -7452,4 +7541,9 @@ h6,
 
 .rightlist li{
     font-size: 12px;
+}
+
+
+#logbtn{
+    background-color: orange;
 }

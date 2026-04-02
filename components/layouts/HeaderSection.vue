@@ -206,7 +206,7 @@ const readNotification = (id: any, type: any) => {
                 </div>
               </div>
               <div v-if="!user" class="header__top__right__social d-inline-block sign-part js-signin-modal-trigger">
-                <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
+                <!-- <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a> -->
                    <ul class="rightlist ">
                     <li>FAQ</li>
                     <li>Blog</li>
@@ -463,7 +463,7 @@ const readNotification = (id: any, type: any) => {
         </div>
 
         <!-- PC search right parts -->
-        <div v-if="!user" class="col-md-4 no-in-mobile" style="background-color: red;">
+        <div v-if="!user" class="col-md-4 no-in-mobile  upbtn">
           <!-- <div class="basket-balance">
             <nuxt-link to="/user/dashboard/orders">
               <i class="fal fa-plus-circle"></i>
@@ -477,7 +477,7 @@ const readNotification = (id: any, type: any) => {
               <span>Balans Yüklə</span> 
             </nuxt-link>
           </div> -->
-                  <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
+                  <a  id="btnsign"  onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
                    <a onclick="return false" data-signin="login" style="cursor: pointer"> <img src="../../public/img/icons/login.png"/> Daxil ol</a>
 
 

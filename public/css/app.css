@@ -345,6 +345,11 @@ progress {
   -webkit-appearance: none;
 }
 
+.search-part:focus{
+    border: 1px solid #3b82f6;
+  outline: none;
+}
+
 [type=search]::-webkit-search-decoration {
   -webkit-appearance: none;
 }
