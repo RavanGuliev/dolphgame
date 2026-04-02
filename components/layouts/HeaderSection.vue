@@ -477,7 +477,7 @@ const readNotification = (id: any, type: any) => {
               <span>Balans Yüklə</span> 
             </nuxt-link>
           </div> -->
-                  <a  id="btnsign" class="js-signin-modal-trigger"   onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a>
+                  <a  id="btnsign" class="js-signin-modal-trigger"   onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  eydiyyat</a>
                    <a onclick="return false" class="js-signin-modal-trigger" data-signin="login" style="cursor: pointer"> <img src="../../public/img/icons/login.png"/> Daxil ol</a>
 
 
