@@ -631,6 +631,15 @@ a:hover {
     margin-bottom: 10px;
 }
 
+/* new css */
+
+.header-right-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    justify-content: flex-end; /* Elementləri sağa yığır */
+}
+
 .basket-balance {
     display: inline-block;
     text-align: center;
@@ -639,9 +648,12 @@ a:hover {
     margin-top: 9px;
     margin-left: 12px;
     position: relative;
-    float: right;
+    float: right; 
     width: 45%;
+    background-color: #FF4800 !important;
 }
+
+
 
 .basket-balance a {
     display: block;
@@ -685,6 +697,103 @@ a:hover {
     transition: 500ms;
     cursor: pointer;
 }
+
+.notification-container {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+.notif-square {
+    position: relative !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background-color: #fdf0eb;
+    border-radius: 12px;
+    text-decoration: none;
+    overflow: visible !important; 
+    transition: all 0.2s ease;
+}
+
+.notif-square:hover {
+    background-color: #fce4da;
+    transform: translateY(-1px);
+}
+
+.notif-square__icon {
+    font-size: 20px;
+    color: #e95d2d;
+}
+
+.notif-square__badge {
+    position: absolute !important;
+    top: -7px !important;    
+    right: -7px !important;
+    background-color: #e95d2d !important;
+    color: #ffffff !important;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 11px !important;
+    font-weight: bold;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 99;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Menyunun kvadratın tam altında simmetrik durması üçün */
+.user-hover.my-profil {
+    top: 48px !important;
+    right: 0 !important;
+    left: auto !important;
+}
+
+/* Kvadratın özü */
+.notif-square {
+    width: 44px !important;
+    height: 44px !important;
+    background-color: #fdf0eb !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: 0.2s;
+}
+
+.notif-square__icon {
+    font-size: 19px !important;
+    color: #e95d2d !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 header nav {
     border-top: 1px solid whitesmoke;
