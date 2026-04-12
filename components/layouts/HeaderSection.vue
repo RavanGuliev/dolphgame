@@ -145,6 +145,117 @@ const readNotification = (id: any, type: any) => {
     });
   });
 };
+
+// --- Statuslar (Refs) ---
+const isMenuOpen = ref(false);
+const isPubgMenuOpen = ref(false);
+const isSupercellMenuOpen = ref(false);
+const isValorantMenuOpen = ref(false); // Valorant üçün status
+const categorySearch = ref("");
+
+// --- Menyu İdarəetmə Funksiyaları ---
+
+// Bütün menyuları bir anda bağlamaq üçün (Linkə klikləyəndə istifadə olunur)
+const handleLinkClick = () => {
+  isMenuOpen.value = false;
+  isPubgMenuOpen.value = false;
+  isSupercellMenuOpen.value = false;
+  isValorantMenuOpen.value = false;
+  if (process.client) {
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+  }
+};
+
+const toggleMenu = () => {
+  isPubgMenuOpen.value = false;
+  isSupercellMenuOpen.value = false;
+  isValorantMenuOpen.value = false;
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+const togglePubgMenu = () => {
+  isMenuOpen.value = false;
+  isSupercellMenuOpen.value = false;
+  isValorantMenuOpen.value = false;
+  isPubgMenuOpen.value = !isPubgMenuOpen.value;
+};
+
+const toggleSupercellMenu = () => {
+  isMenuOpen.value = false;
+  isPubgMenuOpen.value = false;
+  isValorantMenuOpen.value = false;
+  isSupercellMenuOpen.value = !isSupercellMenuOpen.value;
+};
+
+const toggleValorantMenu = () => {
+  isMenuOpen.value = false;
+  isPubgMenuOpen.value = false;
+  isSupercellMenuOpen.value = false;
+  isValorantMenuOpen.value = !isValorantMenuOpen.value;
+};
+
+// --- Computed Məntiqləri (Data Mapping) ---
+
+const filteredCategories = computed(() => {
+  if (!categories.value || !categories.value.data) return [];
+  if (!categorySearch.value.trim()) return categories.value.data;
+  const query = categorySearch.value.toLowerCase();
+  return categories.value.data.filter((cat) => cat.name.toLowerCase().includes(query));
+});
+
+const getPubgGames = computed(() => {
+  if (!categories.value || !categories.value.data) return [];
+  const main = categories.value.data.find((cat) => cat.slug === "pubg");
+  return main && main.games ? main.games : [];
+});
+
+const getSupercellGames = computed(() => {
+  if (!categories.value || !categories.value.data) return [];
+  const main = categories.value.data.find((cat) => cat.slug === "supercell");
+  return main && main.games ? main.games : [];
+});
+
+const getValorantGames = computed(() => {
+  if (!categories.value || !categories.value.data) return [];
+  const main = categories.value.data.find((cat) => cat.slug === "valorant");
+  return main && main.games ? main.games : [];
+});
+
+// --- Scroll Dondurma Məntiqi ---
+watch(
+  [
+    () => isMenuOpen.value,
+    () => isPubgMenuOpen.value,
+    () => isSupercellMenuOpen.value,
+    () => isValorantMenuOpen.value
+  ],
+  ([m, p, s, v]) => {
+    if (process.client) {
+      const anyOpen = m || p || s || v;
+      if (anyOpen) {
+        document.body.style.overflow = "hidden";
+        document.body.style.paddingRight = "15px";
+      } else {
+        document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
+      }
+    }
+  }
+);
+
+// Tab-a qayıdışda header itməməsi üçün
+if (process.client) {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      if (!isMenuOpen.value && !isPubgMenuOpen.value && !isSupercellMenuOpen.value && !isValorantMenuOpen.value) {
+        document.body.style.position = "";
+        document.body.style.overflow = "";
+        document.body.style.top = "";
+      }
+    }
+  });
+}
 </script>
 
 <template>
@@ -152,7 +263,7 @@ const readNotification = (id: any, type: any) => {
     <!-- PC page top part -->
     <div class="container-fluid grey d-n-992">
       <div class="container back-grey pt-0">
-        <div class="row reset-margin">
+        <div class="row reset-margin top-header-align">
           <div class="col-lg-6 col-md-6">
             <div :class="{ 'p-set': user }" class="header__top__left">
               <ul @click="closeHover" class="mb-0 pl-0">
@@ -173,20 +284,14 @@ const readNotification = (id: any, type: any) => {
                 </li> -->
                 <li><i class="fa-brands fa-facebook"></i></li>
                 <li>
-                  <a
-                    href="https://www.instagram.com/dolphdigital/"
-                    target="_blank"
-                  >
+                  <a href="https://www.instagram.com/dolphdigital/" target="_blank">
                     <i class="fab fa-instagram"></i>
                   </a>
                 </li>
                 <li><i class="fa-brands fa-linkedin"></i></li>
                 <li><i class="fa-brands fa-telegram"></i></li>
                 <li>
-                  <a
-                    href="https://www.youtube.com/@dolphgamecom"
-                    target="_blank"
-                  >
+                  <a href="https://www.youtube.com/@dolphgamecom" target="_blank">
                     <i class="fa-brands fa-youtube"></i>
                   </a>
                 </li>
@@ -198,23 +303,17 @@ const readNotification = (id: any, type: any) => {
             <div :class="{ 'pb-0': user }" class="header__top__right">
               <div class="header__top__right__social d-inline-block">
                 <div class="modes">
-                  <span @click="setMode('dark')"
-                    ><i class="fad fa-moon"></i
-                  ></span>
-                  <span @click="setMode('style')"
-                    ><i class="fas fa-sun"></i
-                  ></span>
+                  <span @click="setMode('dark')"><i class="fad fa-moon"></i></span>
+                  <span @click="setMode('style')"><i class="fas fa-sun"></i></span>
                 </div>
               </div>
-              <div
-                class="header__top__right__social d-inline-block sign-part js-signin-modal-trigger"
-              >
+              <div class="header__top__right__social d-inline-block sign-part js-signin-modal-trigger">
                 <!-- <a onclick="return false" data-signin="signup" style="cursor: pointer"> <img src="../../public/img/icons/registr.png"/>  Qeydiyyat</a> -->
                 <ul class="rightlist">
-                  <li>FAQ</li>
-                  <li>Blog</li>
-                  <li>Haqqımızda</li>
-                  <li>Qaydalar</li>
+                  <li @click="$router.push('pages/faq'); handleLinkClick()">FAQ</li>
+                  <li @click="$router.push('/blogs'); handleLinkClick()">Blog</li>
+                  <li @click="$router.push('pages/about'); handleLinkClick()">Haqqımızda</li>
+                  <li @click="$router.push('pages/privacy'); handleLinkClick()">Qaydalar</li>
                 </ul>
               </div>
               <!-- <div v-else class="after-login"> -->
@@ -368,10 +467,7 @@ const readNotification = (id: any, type: any) => {
         </div>
 
         <!-- Mobile and PC logo -->
-        <div
-          :class="{ 'col-4': user, 'col-4': !user, 'logo-auth': user }"
-          class="col-xl-2 col-lg-3 logo-for-mobile"
-        >
+        <div :class="{ 'col-4': user, 'col-4': !user, 'logo-auth': user }" class="col-xl-2 col-lg-3 logo-for-mobile">
           <div class="text-lg-center">
             <nuxt-link to="/">
               <img :src="data?.logo" alt="logo" class="w-100 header-logo" />
@@ -379,27 +475,12 @@ const readNotification = (id: any, type: any) => {
           </div>
         </div>
         <!-- Mobile User icon -->
-        <div
-          v-if="!user"
-          class="col-6 no-in-pc js-signin-modal-trigger header-mobile__signin-modal-trigger"
-        >
-          <div
-            class="header__top__right__social sign-part js-signin-modal-trigger"
-          >
-            <a
-              onclick="return false"
-              data-signin="login"
-              style="cursor: pointer"
-            >
-              <img src="../../public/img/icons/login.png" /> Daxil ol</a
-            >
-            <a
-              onclick="return false"
-              data-signin="signup"
-              style="cursor: pointer"
-            >
-              <img src="../../public/img/icons/registr.png" /> Qeydiyyat</a
-            >
+        <div v-if="!user" class="col-6 no-in-pc js-signin-modal-trigger header-mobile__signin-modal-trigger">
+          <div class="header__top__right__social sign-part js-signin-modal-trigger">
+            <a onclick="return false" data-signin="login" style="cursor: pointer">
+              <img src="../../public/img/icons/login.png" /> Daxil ol</a>
+            <a onclick="return false" data-signin="signup" style="cursor: pointer">
+              <img src="../../public/img/icons/registr.png" /> Qeydiyyat</a>
           </div>
         </div>
         <div v-else class="col-4 no-in-pc mobile-user-inform">
@@ -435,59 +516,43 @@ const readNotification = (id: any, type: any) => {
             <div class="profil-inform">
               <ul @click="closeHover" class="list-unstyled m-0">
                 <li>
-                  <nuxt-link to="/user/dashboard"
-                    ><i class="fal fa-user"></i> Profilim</nuxt-link
-                  >
+                  <nuxt-link to="/user/dashboard"><i class="fal fa-user"></i> Profilim</nuxt-link>
                 </li>
                 <li>
-                  <nuxt-link to="/user/dashboard/orders"
-                    ><i class="fal fa-shopping-bag"></i>
+                  <nuxt-link to="/user/dashboard/orders"><i class="fal fa-shopping-bag"></i>
                     Sifarişlərim
                   </nuxt-link>
                 </li>
                 <li>
-                  <nuxt-link to="/user/dashboard/payments"
-                    ><i class="fal fa-wallet"></i>
+                  <nuxt-link to="/user/dashboard/payments"><i class="fal fa-wallet"></i>
                     Ödənişlərim
                   </nuxt-link>
                 </li>
                 <li>
-                  <nuxt-link to="/user/dashboard/notifications"
-                    ><i class="fal fa-bell"></i> Bildirişlərim
-                    <span>({{ notifications_count }})</span></nuxt-link
-                  >
+                  <nuxt-link to="/user/dashboard/notifications"><i class="fal fa-bell"></i> Bildirişlərim
+                    <span>({{ notifications_count }})</span></nuxt-link>
                 </li>
                 <li>
-                  <nuxt-link href="/user/dashboard/account"
-                    ><i class="fal fa-cog"></i>
+                  <nuxt-link href="/user/dashboard/account"><i class="fal fa-cog"></i>
                     Tənzimləmələr
                   </nuxt-link>
                 </li>
                 <hr />
                 <li>
-                  <a @click="logout" style="cursor: pointer"
-                    ><i class="fal fa-sign-out-alt"></i> Hesabdan çıx</a
-                  >
+                  <a @click="logout" style="cursor: pointer"><i class="fal fa-sign-out-alt"></i> Hesabdan çıx</a>
                 </li>
               </ul>
             </div>
           </div>
-          <a
-            class="customer-not notificationicon mobile-bell"
-            style="cursor: pointer"
-            ><i class="fas fa-bell"></i>
-            <small>{{ notifications_count }}</small></a
-          >
+          <a class="customer-not notificationicon mobile-bell" style="cursor: pointer"><i class="fas fa-bell"></i>
+            <small>{{ notifications_count }}</small></a>
           <ul v-if="notifications" id="notificationMenu" class="notifications">
             <li class="titlebar">
               <span class="title">Bildirişlər</span>
               <span class="settings"><i class="icon-cog"></i></span>
             </li>
             <div class="notifbox">
-              <li
-                @click="readNotification(notification.id, notification.type)"
-                v-for="notification in notifications"
-              >
+              <li @click="readNotification(notification.id, notification.type)" v-for="notification in notifications">
                 <a style="cursor: pointer">
                   <div class="messageblock">
                     <div class="message">
@@ -501,9 +566,7 @@ const readNotification = (id: any, type: any) => {
               </li>
             </div>
             <li class="seeall">
-              <nuxt-link to="/user/dashboard/notifications"
-                >Hamısına bax</nuxt-link
-              >
+              <nuxt-link to="/user/dashboard/notifications">Hamısına bax</nuxt-link>
             </li>
           </ul>
         </div>
@@ -511,12 +574,7 @@ const readNotification = (id: any, type: any) => {
         <!-- Mobile and PC search -->
         <div class="col-xl-6 col-lg-5">
           <form id="search" action="/" class="search-wrapper cf">
-            <input
-              v-model="search"
-              class="search-part"
-              type="text"
-              placeholder="Oyun axtar.."
-            />
+            <input v-model="search" class="search-part" type="text" placeholder="Oyun axtar.." />
             <button type="submit"><i class="fal fa-search"></i></button>
             <div v-if="search.length > 0" class="search-box">
               <div id="search-box">
@@ -541,23 +599,11 @@ const readNotification = (id: any, type: any) => {
               <span>Balans Yüklə</span> 
             </nuxt-link>
           </div> -->
-          <a
-            id="btnsign"
-            class="js-signin-modal-trigger"
-            onclick="return false"
-            data-signin="signup"
-            style="cursor: pointer"
-          >
-            <img src="../../public/img/icons/registr.png" /> Qeydiyyat</a
-          >
-          <a
-            onclick="return false"
-            class="js-signin-modal-trigger"
-            data-signin="login"
-            style="cursor: pointer"
-          >
-            <img src="../../public/img/icons/login.png" /> Daxil ol</a
-          >
+          <a id="btnsign" class="js-signin-modal-trigger" onclick="return false" data-signin="signup"
+            style="cursor: pointer">
+            <img src="../../public/img/icons/registr.png" /> Qeydiyyat</a>
+          <a onclick="return false" class="js-signin-modal-trigger" data-signin="login" style="cursor: pointer">
+            <img src="../../public/img/icons/login.png" /> Daxil ol</a>
         </div>
         <div v-if="!user" class="col-md-4 no-in-mobile upbtn">
           <!-- <div class="basket-balance">
@@ -578,7 +624,6 @@ const readNotification = (id: any, type: any) => {
         <div v-else class="col-md-4 no-in-mobile header-actions-wrapper">
           <div class="basket-balance">
             <nuxt-link to="/payments/online">
-              <i class="fal fa-wallet"></i>
               <span>Balans Yüklə</span>
             </nuxt-link>
           </div>
@@ -596,11 +641,7 @@ const readNotification = (id: any, type: any) => {
             <div class="notification-container">
               <nuxt-link to="/user/notifications" class="notif-square">
                 <i class="fas fa-bell notif-square__icon"></i>
-                <span
-                  v-if="notifications_count > 0"
-                  class="notif-square__badge"
-                  >{{ notifications_count }}</span
-                >
+                <span v-if="notifications_count > 0" class="notif-square__badge">{{ notifications_count }}</span>
               </nuxt-link>
             </div>
 
@@ -638,25 +679,17 @@ const readNotification = (id: any, type: any) => {
                 <div class="profil-inform">
                   <ul @click="closeHover" class="list-unstyled m-0">
                     <li>
-                      <nuxt-link to="/user/dashboard"
-                        ><i class="fal fa-user"></i> Profilim</nuxt-link
-                      >
+                      <nuxt-link to="/user/dashboard"><i class="fal fa-user"></i> Profilim</nuxt-link>
                     </li>
                     <li>
-                      <nuxt-link to="/user/dashboard/orders"
-                        ><i class="fal fa-shopping-bag"></i>
-                        Sifarişlərim</nuxt-link
-                      >
+                      <nuxt-link to="/user/dashboard/orders"><i class="fal fa-shopping-bag"></i>
+                        Sifarişlərim</nuxt-link>
                     </li>
                     <li>
-                      <nuxt-link to="/user/dashboard/payments"
-                        ><i class="fal fa-wallet"></i> Ödənişlərim</nuxt-link
-                      >
+                      <nuxt-link to="/user/dashboard/payments"><i class="fal fa-wallet"></i> Ödənişlərim</nuxt-link>
                     </li>
                     <li>
-                      <nuxt-link to="/user/dashboard/operations"
-                        ><i class="fal fa-history"></i> Əməliyyatlar</nuxt-link
-                      >
+                      <nuxt-link to="/user/dashboard/operations"><i class="fal fa-history"></i> Əməliyyatlar</nuxt-link>
                     </li>
                     <li>
                       <nuxt-link to="/user/dashboard/notifications">
@@ -665,15 +698,12 @@ const readNotification = (id: any, type: any) => {
                       </nuxt-link>
                     </li>
                     <li>
-                      <nuxt-link to="/user/dashboard/account"
-                        ><i class="fal fa-cog"></i> Tənzimləmələr</nuxt-link
-                      >
+                      <nuxt-link to="/user/dashboard/account"><i class="fal fa-cog"></i> Tənzimləmələr</nuxt-link>
                     </li>
                     <hr />
                     <li>
-                      <a style="cursor: pointer" @click.prevent="logout"
-                        ><i class="fal fa-sign-out-alt"></i> Hesabdan çıx</a
-                      >
+                      <a style="cursor: pointer" @click.prevent="logout"><i class="fal fa-sign-out-alt"></i> Hesabdan
+                        çıx</a>
                     </li>
                   </ul>
                 </div>
@@ -729,12 +759,43 @@ const readNotification = (id: any, type: any) => {
     <div class="quick-nav-section no-in-mobile">
       <div class="container">
         <div class="quick-nav-wrapper">
-          <div class="nav-item-box group">
+          <div class="nav-item-box category-trigger" @click.stop="toggleMenu">
             <div class="icon-bg orange-light">
               <i class="fal fa-bars"></i>
             </div>
             <span class="nav-text">Kateqoriyalar</span>
-            <i class="fal fa-chevron-down arrow-icon"></i>
+            <i class="fal fa-chevron-down arrow-icon" :class="{ 'rotate-180': isMenuOpen }"></i>
+
+            <div v-if="isMenuOpen" class="mega-menu-panel full-width-panel" @click.stop>
+              <div class="mega-menu-inner">
+                <div class="mega-top-bar">
+                  <h3>Kateqoriyalar</h3>
+                  <div class="mega-search">
+                    <input type="text" v-model="categorySearch" placeholder="Axtarış edin..." />
+                    <i class="fal fa-search"></i>
+                  </div>
+                </div>
+
+                <div class="mega-grid-wrapper">
+                  <div class="mega-grid">
+                    <template v-if="filteredCategories && filteredCategories.length">
+                      <div v-for="cat in filteredCategories" :key="cat.id" class="mega-item">
+                        <nuxt-link :to="'/category/' + cat.slug" class="mega-item-link" @click.native="handleLinkClick">
+                          <div class="mega-item-icon" :style="{ background: cat.color || '#fdfaf3' }">
+                            <img :src="cat.image" :alt="cat.name" />
+                          </div>
+                          <span class="mega-item-name">{{ cat.name }}</span>
+                        </nuxt-link>
+                      </div>
+                    </template>
+
+                    <div v-else-if="categorySearch" class="no-results">
+                      "{{ categorySearch }}" üzrə heç bir kateqoriya tapılmadı.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="nav-item-box group">
@@ -745,40 +806,97 @@ const readNotification = (id: any, type: any) => {
             <i class="fal fa-chevron-down arrow-icon"></i>
           </div>
 
-          <div class="nav-item-box">
+          <div class="nav-item-box category-trigger" @click.stop="togglePubgMenu">
             <div class="icon-bg gold-light">
-              <img
-                src="../../public/img/icons/pubg-icon.png"
-                alt="PUBG"
-                class="nav-img-icon"
-              />
+              <img src="../../public/img/icons/pubg-icon.png" alt="PUBG" class="nav-img-icon" />
             </div>
             <span class="nav-text">PUBG</span>
-            <i class="fal fa-chevron-down arrow-icon"></i>
+            <i class="fal fa-chevron-down arrow-icon" :class="{ 'rotate-180': isPubgMenuOpen }"></i>
+
+            <div v-if="isPubgMenuOpen" class="mega-menu-panel full-width-panel" @click.stop>
+              <div class="mega-menu-inner">
+                <div class="mega-top-bar">
+                  <h3>PUBG Məhsulları</h3>
+                </div>
+
+                <div class="mega-grid-wrapper">
+                  <div class="mega-grid">
+                    <template v-if="getPubgGames && getPubgGames.length">
+                      <div v-for="item in getPubgGames" :key="item.id" class="mega-item">
+                        <nuxt-link :to="'/game/' + item.slug" class="mega-item-link"
+                          @click.native.stop="isPubgMenuOpen = false">
+                          <div class="mega-item-icon" style="background: #fdfaf3">
+                            <img :src="item.image" :alt="item.name" />
+                          </div>
+                          <span class="mega-item-name">{{ item.name }}</span>
+                        </nuxt-link>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="nav-item-box">
+          <div class="nav-item-box category-trigger" @click.stop="toggleSupercellMenu">
             <div class="icon-bg grey-light">
-              <img
-                src="../../public/img/icons/supercell.png"
-                alt="Supercell"
-                class="nav-img-icon"
-              />
+              <img src="../../public/img/icons/supercell.png" alt="Supercell" class="nav-img-icon" />
             </div>
             <span class="nav-text">Supercell</span>
-            <i class="fal fa-chevron-down arrow-icon"></i>
+            <i class="fal fa-chevron-down arrow-icon" :class="{ 'rotate-180': isSupercellMenuOpen }"></i>
+
+            <div v-if="isSupercellMenuOpen" class="mega-menu-panel full-width-panel" @click.stop>
+              <div class="mega-menu-inner">
+                <div class="mega-top-bar">
+                  <h3>Supercell Oyunları</h3>
+                </div>
+
+                <div class="mega-grid-wrapper">
+                  <div class="mega-grid">
+                    <template v-if="getSupercellGames && getSupercellGames.length">
+                      <div v-for="item in getSupercellGames" :key="item.id" class="mega-item">
+                        <nuxt-link :to="'/game/' + item.slug" class="mega-item-link" @click.native="handleLinkClick">
+                          <div class="mega-item-icon" style="background: #f4f4f4">
+                            <img :src="item.image" :alt="item.name" />
+                          </div>
+                          <span class="mega-item-name">{{ item.name }}</span>
+                        </nuxt-link>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="nav-item-box">
+          <div class="nav-item-box category-trigger" @click.stop="toggleValorantMenu">
             <div class="icon-bg pink-light">
-              <img
-                src="../../public/img/icons/valorant.png"
-                alt="Valorant"
-                class="nav-img-icon"
-              />
+              <img src="../../public/img/icons/valorant.png" alt="Valorant" class="nav-img-icon" />
             </div>
             <span class="nav-text">Valorant</span>
-            <i class="fal fa-chevron-down arrow-icon"></i>
+            <i class="fal fa-chevron-down arrow-icon" :class="{ 'rotate-180': isValorantMenuOpen }"></i>
+
+            <div v-if="isValorantMenuOpen" class="mega-menu-panel full-width-panel" @click.stop>
+              <div class="mega-menu-inner">
+                <div class="mega-top-bar">
+                  <h3>Valorant Məhsulları</h3>
+                </div>
+                <div class="mega-grid-wrapper">
+                  <div class="mega-grid">
+                    <template v-if="getValorantGames && getValorantGames.length">
+                      <div v-for="item in getValorantGames" :key="item.id" class="mega-item">
+                        <nuxt-link :to="'/game/' + item.slug" class="mega-item-link" @click.native="handleLinkClick">
+                          <div class="mega-item-icon" style="background: #fff5f5">
+                            <img :src="item.image" :alt="item.name" />
+                          </div>
+                          <span class="mega-item-name">{{ item.name }}</span>
+                        </nuxt-link>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <nuxt-link to="/blogs" class="nav-item-box link">
@@ -808,18 +926,13 @@ const readNotification = (id: any, type: any) => {
     <!-- Mobile and PC sign part -->
     <div v-if="!user" class="cd-signin-modal js-signin-modal">
       <div class="cd-signin-modal__container">
-        <ul
-          class="cd-signin-modal__switcher js-signin-modal-switcher js-signin-modal-trigger list-unstyled"
-        >
+        <ul class="cd-signin-modal__switcher js-signin-modal-switcher js-signin-modal-trigger list-unstyled">
           <li>
-            <a style="cursor: pointer" data-signin="login" data-type="login"
-              >Giriş</a
-            >
+            <a style="cursor: pointer" data-signin="login" data-type="login">Giriş</a>
           </li>
           <li>
             <a style="cursor: pointer" data-signin="signup" data-type="signup">
-              Qeydiyyat</a
-            >
+              Qeydiyyat</a>
           </li>
         </ul>
 
@@ -896,9 +1009,7 @@ const readNotification = (id: any, type: any) => {
     <div v-if="categories" class="mobile-hide-category new-scroll">
       <div class="close-btn"><i class="fal fa-times"></i></div>
       <div v-for="category in categories.data" class="mobile-menu">
-        <nuxt-link
-          :to="{ name: 'category-slug', params: { slug: category.slug } }"
-        >
+        <nuxt-link :to="{ name: 'category-slug', params: { slug: category.slug } }">
           <img :src="category.image" :alt="category.name" />
           <span> {{ category.name }}</span>
         </nuxt-link>

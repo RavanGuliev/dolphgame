@@ -460,7 +460,6 @@ a:hover {
     zoom: 1;
 }
 
-/* Form wrapper styling */
 .search-wrapper {
     display: flex;
     justify-content: center;  
@@ -470,8 +469,8 @@ a:hover {
     height: 100%;  
 }
 .search-part:focus ~ button i {
-    color: #ff4800;  /* Fokuslananda icon rəngi */
-    transform: scale(1.1); /* İconun ölçüsünü bir az böyüdür */
+    color: #ff4800;  
+    transform: scale(1.1); 
 }
 
 .search-part {
@@ -497,7 +496,7 @@ a:hover {
     color: grey;
 }
 
-/* Form text input */
+
 
 .search-wrapper input {
     width: 100%;
@@ -544,7 +543,7 @@ a:hover {
 }
 
 .search-wrapper button i {
-    font-size: 24px;
+    font-size: 16px;
     color: grey;
 }
 
@@ -637,39 +636,37 @@ a:hover {
     display: flex !important;
     align-items: center !important;
     gap: 12px !important;
-    justify-content: flex-end; /* Elementləri sağa yığır */
+    justify-content: flex-end;
+    margin: 0 !important; /* Əlavə margin varsa sıranı pozmasın */
 }
 
 .basket-balance {
-    display: inline-block;
-    text-align: center;
-    border: 1px solid #eeeeee;
-    border-radius: 4px;
-    margin-top: 9px;
-    margin-left: 12px;
-    position: relative;
-    float: right; 
-    width: 45%;
-    background-color: #FF4800 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 139px;
+    height: 48px;
+    padding: 0; 
+    background: #FF4800 !important;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 !important;
 }
 
 
-
-.basket-balance a {
-    display: block;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 16px;
-    padding-bottom: 15px;
-    color: #1c1c1c;
-    box-shadow: 1px 1px 5px #f3eeee;
-    transition: 500ms;
-}
-
+.basket-balance a, 
 .basket-balance span {
-    font-size: 14px;
-    vertical-align: 4px;
-    margin-left: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white !important;
+    text-decoration: none;
+    line-height: 1; 
+    text-align: center;
+    font-size: 16px;
+
 }
 
 .basket-balance i {
@@ -690,18 +687,19 @@ a:hover {
     color: white;
 }
 
-.basket-balance a:hover {
+/* .basket-balance a:hover {
     background: #ff4800;
     color: white !important;
     border-radius: 5px;
     transition: 500ms;
     cursor: pointer;
-}
+} */
 
 .notification-container {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 15px;
+   display: flex !important; /* inline-block əvəzinə */
+    align-items: center;
+    justify-content: center;
+    margin-right: 0 !important; 
 }
 
 .notif-square {
@@ -776,12 +774,231 @@ a:hover {
     font-size: 19px !important;
     color: #e95d2d !important;
 }
+/* 1. Səhifənin (Body) əsas scroll-unu tamamilə gizlədirik */
+html.no-scroll, body.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100% !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    /* Brauzerin standart scrollbar-ını gizlətmək üçün */
+    -ms-overflow-style: none;  /* IE və Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Chrome, Safari və Opera üçün body scrollbar-ını gizlət */
+body.no-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* 2. Ana Tetikleyici */
+.category-trigger {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* 3. Tam Ekran Mega Menu Paneli */
+.mega-menu-panel.full-width-panel {
+    position: fixed !important;
+    top: 238px !important; /* Header-in bitdiyi yer */
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: calc(100vh - 158px) !important;
+    background: #ffffff;
+    z-index: 9999999;
+    
+    /* STRUKTUR DƏYİŞİKLİYİ: Başlığı dondurmaq üçün flex istifadə edirik */
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden !important; 
+}
+
+/* 4. Daxili Konteyner */
+.mega-menu-inner {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 5. Üst Bar (Başlıq və Axtarış) - BU HİSSƏ ARTIQ SABİT QALACAQ */
+.mega-top-bar {
+    flex-shrink: 0; /* Sıxılmağına və yuxarı qaçmağına icazə vermirik */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    background: #ffffff;
+}
+
+.mega-top-bar h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+}
+
+.mega-search {
+    position: relative;
+    width: 380px;
+}
+
+.mega-search input {
+    width: 100%;
+    padding: 14px 20px 14px 45px;
+    border-radius: 16px;
+    border: 1px solid #f0f0f0;
+    background: #f8f8f8;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.mega-search i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+/* 6. KATEQORİYALARIN SÜRÜŞDÜYÜ YENİ KONTEYNER */
+.mega-grid-wrapper {
+    flex-grow: 1;
+    overflow-y: auto !important; /* Scroll funksiyası işləsin... */
+    padding-right: 0; 
+    padding-bottom: 50px;
+    
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.mega-grid-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.mega-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+}
+
+.mega-item-link {
+    display: flex !important;
+    align-items: center !important;
+    padding: 16px 20px !important;
+    background: #fdfaf3 !important;
+    border-radius: 18px !important;
+    text-decoration: none !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+
+.mega-item-link:hover {
+    background: #f7ede4 !important;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.mega-item-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    flex-shrink: 0;
+}
+
+.mega-item-icon img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+.mega-item-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #222;
+}
+
+.mega-grid-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+.mega-grid-wrapper::-webkit-scrollbar-thumb {
+    background: #e5e5e5;
+    border-radius: 10px;
+}
+
+.rightlist {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 0px;
+}
+
+/* Li-nin daxilindəki hər şeyi təmizləyirik */
+.rightlist li {
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
+
+/* Əsas məsələ burdadır: Nuxt-un yaratdığı linki dizayna tabe edirik */
+.rightlist li a, 
+.rightlist a {
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: inherit !important;
+    display: inline-block;
+    line-height: normal;
+}
+
+/* Hover effektini də bura yazaq */
+.rightlist li:hover {
+    opacity: 0.7;
+}
+
+@media screen and (min-width: 992px) {
+  .header-actions-wrapper {
+    display: flex !important;
+    align-items: center !important; /* Hamısını eyni hündürlükdə mərkəzləyir */
+    justify-content: flex-end; /* Sağa yaslayır */
+    gap: 15px; /* Elementlərin arasına məsafə qoyur */
+    
+  }}
+
+
+  .top-header-align {
+    display: flex !important;
+    align-items: center !important; /* Hər iki sütunu şaquli mərkəzləyir */
+    min-height: 40px; /* Ehtiyaca görə hündürlüyü artıra bilərsən */
+}
 
 
 
 
 
-
+.
 
 
 
@@ -7638,9 +7855,8 @@ h6,
 
 /*Update */
 
-
-.rightlist{
-   list-style: none;
+.rightlist {
+    list-style: none;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -7648,8 +7864,15 @@ h6,
     padding-bottom: 0px;
 }
 
-.rightlist li{
+.rightlist li {
     font-size: 12px;
+    cursor: pointer; /* Link kimi davranması üçün */
+    color: inherit;  /* Rəngin dəyişməməsi üçün */
+    transition: color 0.2s;
+}
+
+.rightlist li:hover {
+    color: #f3a633; /* Hover olanda sənin narıncı rəngin (istəsən) */
 }
 
 
