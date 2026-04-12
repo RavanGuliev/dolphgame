@@ -603,7 +603,7 @@ if (process.client) {
             style="cursor: pointer">
             <img src="../../public/img/icons/registr.png" /> Qeydiyyat</a>
           <a onclick="return false" class="js-signin-modal-trigger" data-signin="login" style="cursor: pointer">
-            <img src="../../public/img/icons/login.png" /> Daxil ol</a>
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Daxil ol</a>
         </div>
         <div v-if="!user" class="col-md-4 no-in-mobile upbtn">
           <!-- <div class="basket-balance">
