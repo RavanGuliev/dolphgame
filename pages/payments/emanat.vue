@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { authStore } from "#imports";
 import PaymentSidebar from "~/components/payments/paymentSidebar.vue";
 
@@ -7,200 +7,133 @@ const userStore = authStore();
 const { user } = userStore;
 const { $toast } = useNuxtApp();
 
-definePageMeta({
-  middleware: "auth",
-});
+definePageMeta({ middleware: "auth" });
+useHead({ title: "eManat ilə Balans Artırma" });
 
-useHead({
-  title: 'E-manat ilə Balans Artırma'
-});
-
+const customerCode = computed(() => (user as any)?.id ?? "—");
 const copyCustomerId = () => {
   if ((user as any)?.id) {
-    navigator.clipboard.writeText((user as any).id.toString()).then(() => {
-      $toast.success('Müştəri nömrəsi kopyalandı!')
-    }).catch(() => {
-      $toast.error('Kopyalama zamanı xəta baş verdi')
-    })
+    navigator.clipboard.writeText((user as any).id.toString())
+      .then(() => $toast.success("Müştəri nömrəsi kopyalandı!"))
+      .catch(() => $toast.error("Kopyalama zamanı xəta baş verdi"));
   }
-}
+};
+
+const amount = ref(10);
+const fmt = (n: any) => Number(n || 0).toFixed(2);
+const fee = computed(() => (Number(amount.value) || 0) * 0.03);
+const result = computed(() => (Number(amount.value) || 0) - fee.value);
+const quicks = [5, 10, 25, 50, 100];
+
+const steps = [
+  { t: "Terminala yaxınlaşın", d: "Sizə ən yaxın eManat terminalını tapın." },
+  { t: "Əyləncə bölməsini seçin", d: "Terminal ekranında «Əyləncə» bölməsinə keçin." },
+  { t: "dolphgame.com seçin", d: "Siyahıdan «dolphgame.com» xidmətini tapın." },
+  { t: "Müştəri kodunu daxil edin", d: "Müştəri kodu xanasına nömrənizi yazın." },
+  { t: "Ödənişi tamamlayın", d: "Balansınız 3% komissiya çıxılmaqla dərhal artırılacaq." },
+];
 </script>
 
 <template>
-  <main>
-    <!-- Mobile and PC title -->
-    <div class="container payment-method-banner set-size">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="main-title">
-            <h5>Ödəniş üsulları</h5>
-            <div class="single-sub-menu">
-              <!-- <i class="fal fa-angle-down"></i> -->
+  <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+    <div class="rounded-2xl bg-brand-500 anim-gradient text-white px-5 py-4 font-bold text-base shadow-pop mb-6 flex items-center gap-3" style="background-image: linear-gradient(90deg, #FF4800, #FF6A2E, #FF4800);">
+      <span class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center shrink-0">
+        <svg class="w-5 h-5 gh-wiggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </span>
+      <span class="flex-1">Ödəniş üsulunu seçin</span>
+      <span class="hidden md:flex items-center gap-1.5 text-xs font-semibold bg-white/15 backdrop-blur px-3 py-1.5 rounded-full">
+        <span class="relative flex w-2 h-2"><span class="absolute inset-0 rounded-full bg-emerald-300 anim-live-pulse"></span><span class="relative w-2 h-2 rounded-full bg-emerald-400"></span></span>
+        Ödənişlər 7/24 aktivdir
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+      <payment-sidebar />
+
+      <div data-pay-content class="space-y-6">
+        <div class="bg-white dark:bg-ink-800 rounded-2xl p-6 md:p-7 shadow-card border border-ink-200 dark:border-ink-700">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-500/15 grid place-items-center text-blue-600 dark:text-blue-400 font-black text-[12px]">eM</span>
+              <div>
+                <h2 class="text-lg md:text-xl font-extrabold tracking-tight text-ink-900 dark:text-white">eManat Terminalı ilə ödəniş</h2>
+                <p class="text-xs text-ink-500 dark:text-ink-400 mt-0.5 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 anim-live-pulse"></span>
+                  7/24 · Ödəniş dərhal balansa düşür
+                </p>
+              </div>
+            </div>
+            <span class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400">Komissiya 3%</span>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-px bg-ink-200 dark:bg-ink-700 rounded-2xl overflow-hidden border border-ink-200 dark:border-ink-700">
+            <div class="bg-white dark:bg-ink-800 p-5 md:p-6 flex flex-col">
+              <div class="text-[11px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400">Ödəniş məlumatları</div>
+              <dl class="mt-5 space-y-5">
+                <div class="flex items-start gap-3">
+                  <div class="w-7 h-7 shrink-0 rounded-full border border-ink-200 dark:border-ink-700 grid place-items-center text-[11px] font-bold text-ink-400">1</div>
+                  <div><dt class="text-[11px] text-ink-500 dark:text-ink-400">Xidmət adı</dt><dd class="text-sm font-semibold mt-0.5 text-ink-900 dark:text-white">DolPh Game</dd></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-7 h-7 shrink-0 rounded-full border border-ink-200 dark:border-ink-700 grid place-items-center text-[11px] font-bold text-ink-400">2</div>
+                  <div><dt class="text-[11px] text-ink-500 dark:text-ink-400">Terminal bölməsi</dt><dd class="text-sm font-semibold mt-0.5 text-ink-900 dark:text-white">Əyləncə → dolphgame.com</dd></div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-7 h-7 shrink-0 rounded-full bg-brand-500 grid place-items-center text-[11px] font-bold text-white">3</div>
+                  <div class="flex-1 min-w-0">
+                    <dt class="text-[11px] text-ink-500 dark:text-ink-400">Müştəri kodu</dt>
+                    <dd class="mt-2 relative flex items-center justify-between gap-3 rounded-xl border-2 border-dashed border-brand-500/50 bg-brand-50/30 dark:bg-brand-500/5 px-4 py-4">
+                      <span class="text-[28px] md:text-[32px] font-black text-brand-500 leading-none tracking-tight">{{ customerCode }}</span>
+                      <button @click="copyCustomerId" type="button" class="ripple shrink-0 h-9 px-3.5 rounded-lg bg-brand-500 hover:bg-brand-600 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-pop transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        Kopyala
+                      </button>
+                    </dd>
+                  </div>
+                </div>
+              </dl>
+              <p class="mt-auto pt-5 text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed">Kodu terminalın <strong class="text-ink-700 dark:text-ink-200">«Müştəri kodu»</strong> xanasına daxil edərək ödənişi tamamlayın.</p>
+            </div>
+
+            <div class="bg-white dark:bg-ink-800 p-5 md:p-6 flex flex-col">
+              <div class="flex items-center justify-between">
+                <div class="text-[11px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400">Məbləğ</div>
+                <span class="text-[10px] font-semibold text-ink-400">3% komissiya</span>
+              </div>
+              <div class="mt-5 flex items-center rounded-xl border border-ink-200 dark:border-ink-700 focus-within:border-brand-500 glow-focus transition">
+                <button @click="amount = Math.max(1, Number(amount) - 1)" type="button" class="ripple w-11 h-12 text-xl text-ink-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-l-xl active:scale-90 transition">−</button>
+                <div class="flex-1 flex items-baseline justify-center gap-1.5 py-2">
+                  <input v-model="amount" type="number" min="1" class="w-24 bg-transparent outline-none text-center text-3xl font-black tracking-tight text-ink-900 dark:text-white"/>
+                  <span class="text-xs font-bold text-ink-500 dark:text-ink-400">AZN</span>
+                </div>
+                <button @click="amount = Number(amount) + 1" type="button" class="ripple w-11 h-12 text-xl text-ink-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-r-xl active:scale-90 transition">+</button>
+              </div>
+              <div class="mt-3 grid grid-cols-5 gap-1.5">
+                <button v-for="q in quicks" :key="q" @click="amount = q" type="button" class="h-9 rounded-lg text-[12px] font-semibold border transition active:scale-95 hover:-translate-y-0.5" :class="Number(amount) === q ? 'bg-brand-500 text-white border-brand-500' : 'text-ink-700 dark:text-ink-300 border-ink-200 dark:border-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500'">{{ q }}</button>
+              </div>
+              <dl class="mt-5 space-y-3 text-sm">
+                <div class="flex items-center justify-between"><dt class="text-ink-500 dark:text-ink-400">Ödəniş məbləği</dt><dd class="font-semibold text-ink-900 dark:text-white">{{ fmt(amount) }} AZN</dd></div>
+                <div class="flex items-center justify-between"><dt class="text-ink-500 dark:text-ink-400">Komissiya (3%)</dt><dd class="text-brand-500 font-semibold">−{{ fmt(fee) }} AZN</dd></div>
+              </dl>
+              <div class="mt-4 pt-4 border-t border-ink-200 dark:border-ink-700 flex items-baseline justify-between">
+                <span class="text-sm font-bold uppercase tracking-wider text-ink-700 dark:text-ink-200">Balansa düşəcək</span>
+                <div class="flex items-baseline gap-1"><span class="text-3xl font-black text-brand-500 tracking-tight leading-none">{{ fmt(result) }}</span><span class="text-sm font-bold text-brand-500">AZN</span></div>
+              </div>
+              <p class="mt-auto pt-5 text-[11px] text-ink-500 dark:text-ink-400 leading-relaxed">Ödənişlər <strong class="text-ink-700 dark:text-ink-200">7/24 dərhal</strong> balansınıza düşür.</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- PC and Mobile sub title -->
-    <div class="container">
-      <div class="row reset-margin">
-        <!-- PC sub menus -->
-        <div class="col-lg-3">
-          <payment-sidebar />
-        </div>
-
-        <!-- Mobile and PC menu and payments -->
-        <div class="col-lg-9">
-          <div class="right-part">
-            <div class="row hide-show">
-              <!-- Payment header section -->
-              <div class="col-md-12">
-                <div class="terminal-payment-wrapper">
-                  <div class="payment-card">
-                    <div class="payment-header">
-                      <div class="payment-logo">
-                        <img src="/img/payments/emanat-logo.png" alt="E-manat" class="payment-method-logo">
-                      </div>
-                      <h4>E-manat</h4>
-                      <h3>ilə Balans Artırma</h3>
-                      <p>E-manat terminalları vasitəsilə hesab balansınızı dərhal artırın</p>
-                      
-                      <!-- Commission Badge -->
-                      <div class="header-commission-badge warning">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span>Komissiya: <strong>3%</strong></span>
-                      </div>
-                    </div>
-
-                    <!-- Commission Alert -->
-                    <div class="commission-alert">
-                      <div class="alert-icon">
-                        <i class="fas fa-info-circle"></i>
-                      </div>
-                      <div class="alert-content">
-                        <strong>Komissiya haqqında məlumat</strong>
-                        <p>E-manat terminalları vasitəsilə ödəniş edərkən <strong>3%</strong> komissiya tutulur. Məsələn, 100 AZN ödəyərkən balansınıza 97 AZN əlavə olunacaq.</p>
-                        <div class="commission-tip">
-                          <i class="fas fa-lightbulb"></i>
-                          <span>Komissiyasız ödəniş üçün <nuxt-link to="/payments">Qəbz ilə ödəniş</nuxt-link> üsulunu istifadə edin.</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Customer ID Section -->
-                    <div class="customer-id-section">
-                      <h5>Sizin müştəri nömrəniz</h5>
-                      <div class="customer-id-container">
-                        <div class="customer-id">{{ (user as any)?.id }}</div>
-                        <button @click="copyCustomerId" class="copy-btn">
-                          <i class="fas fa-copy"></i>
-                          Kopyala
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Instructions Section -->
-                    <div class="instructions-section">
-                      <h5><i class="fas fa-list-ol"></i> Addım-addım təlimat</h5>
-                      <div class="instruction-steps">
-                        <div class="step-item">
-                          <div class="step-number">1</div>
-                          <div class="step-content">
-                            <h6>E-manat terminalına yaxınlaşın</h6>
-                            <p>Sizə ən yaxın E-manat terminalını tapın</p>
-                            <div class="step-icon">
-                              <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="step-item">
-                          <div class="step-number">2</div>
-                          <div class="step-content">
-                            <h6>Əyləncə bölməsinə keçid edin</h6>
-                            <p>Terminal ekranında "Əyləncə" bölməsini seçin</p>
-                            <div class="step-icon">
-                              <i class="fas fa-gamepad"></i>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="step-item">
-                          <div class="step-number">3</div>
-                          <div class="step-content">
-                            <h6>dolphgame.com seçin</h6>
-                            <p>Əyləncə bölməsində "dolphgame.com" xidmətini tapın və seçin</p>
-                            <div class="step-icon">
-                              <i class="fas fa-mouse-pointer"></i>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="step-item">
-                          <div class="step-number">4</div>
-                          <div class="step-content">
-                            <h6>Müştəri nömrənizi daxil edin</h6>
-                            <p>Müştəri kodu yerinə {{ (user as any)?.id }} nömrəsini daxil edin</p>
-                            <div class="step-icon">
-                              <i class="fas fa-keyboard"></i>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="step-item">
-                          <div class="step-number">5</div>
-                          <div class="step-content">
-                            <h6>Ödənişi tamamlayın</h6>
-                            <p>Ödəniş tamamlandıqdan sonra balansınız avtomatik artırılacaq (3% komissiya çıxılmaqla)</p>
-                            <div class="step-icon">
-                              <i class="fas fa-check-circle"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Commission Calculator -->
-                    <div class="commission-calculator">
-                      <h5><i class="fas fa-calculator"></i> Komissiya kalkulyatoru</h5>
-                      <div class="calc-examples">
-                        <div class="calc-row">
-                          <span class="calc-input">10 AZN ödəsəniz</span>
-                          <span class="calc-arrow"><i class="fas fa-arrow-right"></i></span>
-                          <span class="calc-output">9.70 AZN balansa əlavə</span>
-                        </div>
-                        <div class="calc-row">
-                          <span class="calc-input">50 AZN ödəsəniz</span>
-                          <span class="calc-arrow"><i class="fas fa-arrow-right"></i></span>
-                          <span class="calc-output">48.50 AZN balansa əlavə</span>
-                        </div>
-                        <div class="calc-row">
-                          <span class="calc-input">100 AZN ödəsəniz</span>
-                          <span class="calc-arrow"><i class="fas fa-arrow-right"></i></span>
-                          <span class="calc-output">97.00 AZN balansa əlavə</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Additional Info -->
-                    <div class="additional-info">
-                      <div class="info-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Ödənişlər dərhal işləyir</span>
-                      </div>
-                      <div class="info-item warning">
-                        <i class="fas fa-percentage"></i>
-                        <span>3% komissiya</span>
-                      </div>
-                      <div class="info-item">
-                        <i class="fas fa-headset"></i>
-                        <span>24/7 dəstək</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div class="bg-white dark:bg-ink-800 rounded-2xl p-6 shadow-card border border-ink-200 dark:border-ink-700">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="w-1 h-6 bg-brand-500 rounded-full"></span>
+            <h3 class="text-lg md:text-xl font-bold text-ink-900 dark:text-white">Necə ödəniş edilir?</h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="(s, i) in steps" :key="i" class="rounded-xl bg-ink-50 dark:bg-ink-900/40 border border-ink-200 dark:border-ink-700 p-4">
+              <div class="w-9 h-9 rounded-lg bg-brand-500 text-white grid place-items-center font-black text-sm">{{ i + 1 }}</div>
+              <h4 class="mt-3 text-[14px] font-extrabold text-ink-900 dark:text-white">{{ s.t }}</h4>
+              <p class="mt-1 text-[12.5px] text-ink-500 dark:text-ink-400 leading-relaxed">{{ s.d }}</p>
             </div>
           </div>
         </div>
@@ -210,483 +143,7 @@ const copyCustomerId = () => {
 </template>
 
 <style scoped>
-.terminal-payment-wrapper {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 0;
-  margin-bottom: 30px;
-  overflow: hidden;
-  border: 1px solid #eaeaea;
-}
-
-.payment-card {
-  width: 100%;
-}
-
-.payment-header {
-  background: #F9F9F9;
-  color: #262626;
-  padding: 40px 30px;
-  text-align: center;
-  position: relative;
-}
-
-.payment-logo {
-  width: 100px;
-  height: 100px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-}
-
-.payment-method-logo {
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-}
-
-.payment-header h4 {
-  font-size: 2.2rem;
-  margin-bottom: 5px;
-  font-weight: 700;
-  color: #262626;
-  text-shadow: none;
-}
-
-.payment-header h3 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  font-weight: 600;
-  color: #262626;
-  opacity: 1;
-}
-
-.payment-header p {
-  color: #262626;
-  opacity: 1;
-  margin: 0 0 20px 0;
-  font-size: 1.1rem;
-}
-
-.header-commission-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-size: 0.95rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.header-commission-badge.warning i {
-  color: #fde68a;
-}
-
-.header-commission-badge strong {
-  font-size: 1.1rem;
-}
-
-/* Commission Alert */
-.commission-alert {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  padding: 20px 25px;
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-  border-bottom: 1px solid #fcd34d;
-}
-
-.alert-icon {
-  width: 40px;
-  height: 40px;
-  background: #f59e0b;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.alert-icon i {
-  color: white;
-  font-size: 1.2rem;
-}
-
-.alert-content {
-  flex: 1;
-}
-
-.alert-content strong {
-  color: #92400e;
-  font-size: 1.05rem;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.alert-content p {
-  color: #78350f;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
-}
-
-.alert-content p strong {
-  display: inline;
-  font-size: inherit;
-}
-
-.commission-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.5);
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-.commission-tip i {
-  color: #f59e0b;
-  margin-top: 2px;
-}
-
-.commission-tip span {
-  color: #78350f;
-}
-
-.commission-tip a {
-  color: #1d4ed8;
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.customer-id-section {
-  padding: 30px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #eaeaea;
-  text-align: center;
-}
-
-.customer-id-section h5 {
-  color: #555;
-  margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-.customer-id-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.customer-id {
-  background: var(--new-default-orange);
-  color: white;
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-  box-shadow: 0 4px 12px rgba(255, 113, 30, 0.3);
-}
-
-.copy-btn {
-  background: var(--new-main-gradient);
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  color: white;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(255, 113, 30, 0.3);
-}
-
-.copy-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 113, 30, 0.4);
-}
-
-.copy-btn:active {
-  transform: translateY(0);
-}
-
-.instructions-section {
-  padding: 30px;
-}
-
-.instructions-section h5 {
-  color: #333;
-  margin-bottom: 25px;
-  font-weight: 600;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.instructions-section h5 i {
-  color: var(--new-default-orange);
-}
-
-.instruction-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.step-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border-left: 4px solid var(--new-default-orange);
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.step-item:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.step-number {
-  background: var(--new-default-orange);
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-  box-shadow: 0 3px 8px rgba(255, 113, 30, 0.3);
-}
-
-.step-content {
-  flex: 1;
-}
-
-.step-content h6 {
-  color: #333;
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.step-content p {
-  color: #666;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.step-icon {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: var(--new-default-orange);
-  font-size: 1.5rem;
-  opacity: 0.3;
-}
-
-/* Commission Calculator */
-.commission-calculator {
-  padding: 25px 30px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-top: 1px solid #eaeaea;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.commission-calculator h5 {
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.commission-calculator h5 i {
-  color: var(--new-default-orange);
-}
-
-.calc-examples {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.calc-row {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 12px 16px;
-  background: white;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-}
-
-.calc-input {
-  flex: 1;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.calc-arrow {
-  color: var(--new-default-orange);
-}
-
-.calc-output {
-  flex: 1;
-  text-align: right;
-  color: #059669;
-  font-weight: 600;
-}
-
-.additional-info {
-  padding: 25px 30px;
-  background: #f8f9fa;
-  border-top: 1px solid #eaeaea;
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #555;
-  font-weight: 500;
-}
-
-.info-item i {
-  color: var(--new-default-orange);
-  font-size: 1.2rem;
-}
-
-.info-item.warning {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  padding: 8px 16px;
-  border-radius: 20px;
-  color: #92400e;
-}
-
-.info-item.warning i {
-  color: #f59e0b;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .payment-header {
-    padding: 30px 20px;
-  }
-  
-  .payment-header h4 {
-    font-size: 1.8rem;
-  }
-  
-  .payment-header h3 {
-    font-size: 1.3rem;
-  }
-  
-  .customer-id-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .customer-id {
-    font-size: 1.5rem;
-    padding: 12px 20px;
-  }
-  
-  .step-item {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
-  }
-  
-  .step-icon {
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-top: 10px;
-  }
-  
-  .additional-info {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
-  
-  .instructions-section,
-  .customer-id-section {
-    padding: 20px;
-  }
-  
-  .commission-alert {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .calc-row {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-  
-  .calc-output {
-    text-align: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .payment-header {
-    padding: 25px 15px;
-  }
-  
-  .payment-logo {
-    width: 80px;
-    height: 80px;
-    padding: 12px;
-  }
-  
-  .payment-method-logo {
-    width: 56px;
-    height: 56px;
-  }
-  
-  .customer-id {
-    font-size: 1.3rem;
-    padding: 10px 15px;
-  }
-  
-  .step-item {
-    padding: 15px;
-  }
-  
-  .commission-calculator {
-    padding: 20px;
-  }
-}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
 </style>

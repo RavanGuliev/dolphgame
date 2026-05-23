@@ -8,8 +8,16 @@ export default defineNuxtConfig({
     modules: [
         '@pinia/nuxt',
         '@nuxtjs/device',
+        '@nuxtjs/tailwindcss',
         // '@zadigetvoltaire/nuxt-well-known'
     ],
+
+    tailwindcss: {
+        cssPath: '~/assets/css/tailwind.css',
+        configPath: '~/tailwind.config.ts',
+        viewer: false,
+    },
+
     plugins: [
     ],
     sourcemap: {
@@ -38,7 +46,16 @@ export default defineNuxtConfig({
     //   },
     app: {
         head: {
+            bodyAttrs: {
+                class: 'bg-ink-50 dark:bg-ink-900 text-ink-900 dark:text-white transition-colors pb-[88px] md:pb-0'
+            },
             script: [
+                // Apply saved theme before paint (no flash) — mirrors dolphhtml head script
+                {
+                    innerHTML: "(function(){try{var t=localStorage.getItem('dolph-theme');var h=document.documentElement;if(t==='light')h.classList.remove('dark');else if(t==='dark')h.classList.add('dark');else h.classList.add('dark');}catch(e){}})();",
+                    tagPosition: 'head',
+                    tagPriority: 'critical'
+                },
                 { src: '/js/Jquery.js', async: false },
                 { src: '/js/owl.carousel.min.js', async: false },
                 { src: '/js/popper.js' },
@@ -58,6 +75,9 @@ export default defineNuxtConfig({
             ],
             link: [
                 // {rel: 'icon', type: 'image/png', href: '/favicon.png'},
+                { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+                { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+                { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' },
                 { href: '/css/all.min.css', rel: 'stylesheet' },
                 { href: '/css/animate.min.css', rel: 'stylesheet' },
                 { href: '/css/icofont.min.css', rel: 'stylesheet' },

@@ -121,7 +121,7 @@ watch(() => best, () => {
     </div>
 
     <!-- Mobile and PC slider, banners -->
-    <section class="bg-white">
+    <section class="bg-white dark:bg-ink-900">
       <div class="container pt-20 no-pb">
         <div class="row">
 

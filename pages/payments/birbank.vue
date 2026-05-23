@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { authStore } from "#imports";
 import { loadingStore } from "~/stores/loadingStore";
@@ -14,223 +14,103 @@ const amount = ref("");
 const isLoading = ref(false);
 const { user } = userStore;
 
-definePageMeta({
-  middleware: "auth",
-});
+definePageMeta({ middleware: "auth" });
+if (user?.level !== "normal") router.push("/payments");
+useHead({ title: "Birbank QR ilə Balans Artırma" });
 
-if (user?.level !== "normal") {
-  router.push("/payments");
-}
-
-useHead({
-  title: 'Birbank QR ilə Balans Artırma'
-});
-
-// Commission rates for Birbank - 1.5%
 const commissionRate = 0.015;
-
-// Calculate commission and total
 const commission = computed(() => {
-  const amountNum = Number(amount.value) || 0;
-  const commissionAmount = amountNum * commissionRate;
-  
-  return {
-    rate: commissionRate,
-    amount: commissionAmount,
-    balance: amountNum,
-    total: amountNum + commissionAmount,
-    label: '1,5%',
-    type: 'paid'
-  };
+  const a = Number(amount.value) || 0;
+  const c = a * commissionRate;
+  return { amount: c, balance: a, total: a + c, label: "1,5%" };
 });
 
 const submitPayment = () => {
-  if (
-    !amount.value ||
-    isNaN(Number(amount.value)) ||
-    Number(amount.value) <= 0
-  ) {
+  if (!amount.value || isNaN(Number(amount.value)) || Number(amount.value) <= 0) {
     $toast.error("Zəhmət olmasa düzgün məbləğ daxil edin");
     return;
   }
-  
   setLoading(true);
   isLoading.value = true;
-  
   $api
-    .post(
-      "user/payment/balance",
-      {
-        amount: amount.value,
-        payment_method: "wallet",
-        wallet_id: "10",
-      },
-      userStore.headers
-    )
+    .post("user/payment/balance", { amount: amount.value, payment_method: "wallet", wallet_id: "10" }, userStore.headers)
     .then((res) => {
-      if (res.data) {
-        window.location.href = res.data;
-      } else {
-        $toast.success("Ödəniş tələbi göndərildi");
-        router.push("/user/dashboard/payments");
-      }
+      if (res.data) window.location.href = res.data;
+      else { $toast.success("Ödəniş tələbi göndərildi"); router.push("/user/dashboard/payments"); }
     })
-    .catch((error) => {
-      $toast.error(
-        error.response?.data?.message || "Ödəniş zamanı xəta baş verdi"
-      );
-    })
-    .finally(() => {
-      setLoading(false);
-      isLoading.value = false;
-    });
+    .catch((e) => $toast.error(e.response?.data?.message || "Ödəniş zamanı xəta baş verdi"))
+    .finally(() => { setLoading(false); isLoading.value = false; });
 };
+
+const quicks = [5, 10, 25, 50, 100];
+const setAmount = (v: number) => (amount.value = String(v));
+const stepAmount = (n: number) => (amount.value = String(Math.max(1, (Number(amount.value) || 0) + n)));
+const fmt = (n: any) => Number(n || 0).toFixed(2);
 </script>
 
 <template>
-  <main>
-    <!-- Mobile and PC title -->
-    <div class="container payment-method-banner set-size">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="main-title">
-            <h5>Ödəniş üsulları</h5>
-            <div class="single-sub-menu">
-              <!-- <i class="fal fa-angle-down"></i> -->
-            </div>
-          </div>
-        </div>
-      </div>
+  <main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+    <div class="rounded-2xl bg-brand-500 anim-gradient text-white px-5 py-4 font-bold text-base shadow-pop mb-6 flex items-center gap-3" style="background-image: linear-gradient(90deg, #FF4800, #FF6A2E, #FF4800);">
+      <span class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur grid place-items-center shrink-0">
+        <svg class="w-5 h-5 gh-wiggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </span>
+      <span class="flex-1">Ödəniş üsulunu seçin</span>
+      <span class="hidden md:flex items-center gap-1.5 text-xs font-semibold bg-white/15 backdrop-blur px-3 py-1.5 rounded-full">
+        <span class="relative flex w-2 h-2"><span class="absolute inset-0 rounded-full bg-emerald-300 anim-live-pulse"></span><span class="relative w-2 h-2 rounded-full bg-emerald-400"></span></span>
+        Ödənişlər 7/24 aktivdir
+      </span>
     </div>
 
-    <!-- PC and Mobile sub title -->
-    <div class="container">
-      <div class="row reset-margin">
-        <!-- PC sub menus -->
-        <div class="col-lg-3">
-          <payment-sidebar />
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+      <payment-sidebar />
 
-        <!-- Mobile and PC menu and payments -->
-        <div class="col-lg-9">
-          <div class="right-part">
-            <div class="row hide-show">
-              <!-- Payment form section -->
-              <div class="col-md-12">
-                <div class="online-payment-wrapper">
-                  <!-- Title Container -->
-                  <div class="payment-header-container">
-                    <h4 class="payment-title">Birbank QR ilə ödəniş etmək</h4>
-                    <p class="payment-subtitle">Ödəmələr 7/24 avtomatik olaraq həyata keçirilir.</p>
-                  </div>
-
-                  <!-- Form Container -->
-                  <div class="payment-form-container">
-                    <form @submit.prevent="submitPayment" class="payment-form">
-                      <div class="form-group">
-                        <label for="amount">Məbləği daxil edin</label>
-                        <div class="input-button-group">
-                          <div class="input-group">
-                            <div class="input-icon">
-                              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 0C5.44688 0 5 0.446875 5 1V2.08437C2.1625 2.55937 0 5.02812 0 8V13C0 13.5531 0.446875 14 1 14C1.55313 14 2 13.5531 2 13V8C2 6.1375 3.275 4.56875 5 4.125V13C5 13.5531 5.44688 14 6 14C6.55312 14 7 13.5531 7 13V4.125C8.725 4.56875 10 6.13438 10 8V13C10 13.5531 10.4469 14 11 14C11.5531 14 12 13.5531 12 13V8C12 5.02812 9.8375 2.55937 7 2.08437V1C7 0.446875 6.55312 0 6 0Z" fill="#FF4800"/>
-                              </svg>
-                            </div>
-                            <input
-                              id="amount"
-                              v-model="amount"
-                              type="number"
-                              class="form-control"
-                              placeholder="Yükləmək istədiyin məbləği daxil edin.."
-                              min="1"
-                              step="0.01"
-                              required
-                            />
-                          </div>
-                          <button
-                            type="submit"
-                            class="btn-payment"
-                            :disabled="isLoading"
-                          >
-                            <span v-if="!isLoading">
-                              <i class="fas fa-lock"></i> Ödəniş et
-                            </span>
-                            <span v-else>
-                              <i class="fas fa-spinner fa-spin"></i> Gözləyin...
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <!-- Commission Summary Box -->
-                      <div v-if="amount && Number(amount) > 0" class="commission-summary">
-                        <div class="summary-row">
-                          <span class="summary-label">Balansa yüklənəcək</span>
-                          <span class="summary-value">{{ commission.balance.toFixed(2) }} AZN</span>
-                        </div>
-                        <div class="summary-row commission-row">
-                          <span class="summary-label">Provayder komissiyası</span>
-                          <span class="summary-value commission-value">{{ commission.label }}</span>
-                        </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row total-row">
-                          <span class="summary-label">Yekun Məbləğ</span>
-                          <span class="summary-value total-value">{{ commission.total.toFixed(2) }} AZN</span>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Payment instructions -->
-              <div class="col-md-12">
-                <div class="payment-instructions">
-                  <!-- Instructions Container with Background -->
-                  <div class="instruction-container">
-                    <!-- Header with logo -->
-                    <div class="instruction-header">
-                      <div class="instruction-logo">
-                        <img src="/img/payments/birbank-logo.png" alt="Birbank QR" />
-                      </div>
-                      <div class="instruction-title-section">
-                        <h5 class="instruction-title">Birbank QR ilə necə ödəniş edilir?</h5>
-                        <p class="instruction-subtitle">Aşağıdan izləyə bilərsiniz.</p>
-                      </div>
-                    </div>
-                    
-                    <!-- Instructions list -->
-                    <ul class="instruction-list">
-                      <li>Yükləmək istədiyiniz məbləği daxil edin.</li>
-                      <li>Sistem provayder komissiyasını avtomatik hesablayacaq və yekun məbləği göstərəcək.</li>
-                      <li><strong>"Ödəniş et"</strong> düyməsinə klik edərək prosesi başladın.</li>
-                    </ul>
-                    
-                    <h6 class="instruction-subheading">Kompüterlə ödəniş edirsinzsə:</h6>
-                    <ul class="instruction-list">
-                      <li>Ekranda <strong>Birbank QR</strong> kod açılacaq.</li>
-                      <li>Mobil telefonunuzdan <strong>Birbank tətbiqini</strong> açaraq <strong>QR kodu</strong> oxudun.</li>
-                    </ul>
-                    
-                    <h6 class="instruction-subheading">Telefonla ödəniş edirsinzsə:</h6>
-                    <ul class="instruction-list">
-                      <li>Birbank tətbiqi <strong>avtomatik</strong> açılacaq.</li>
-                      <li>Ödənişi sadəcə <strong>təsdiqləməyiniz kifayətdir.</strong></li>
-                      <li>Ödəniş təsdiqlendikden sonra məbləğ balansınızdan çıxılır.</li>
-                      <li>Proses tamamlandıqdan sonra <strong>balansınız avtomatik olaraq artır.</strong></li>
-                    </ul>
-                  </div>
-                  
-                  <div class="support-note">
-                    <p>
-                      Hər hansı problem yaşayırsınızsa,
-                      <nuxt-link to="/pages/contact">dəstək komandamızla</nuxt-link>
-                      əlaqə saxlayın.
-                    </p>
-                  </div>
-                </div>
+      <div data-pay-content>
+        <div class="bg-white dark:bg-ink-800 rounded-2xl p-6 md:p-7 shadow-card border border-ink-200 dark:border-ink-700">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-500/15 grid place-items-center text-rose-500 font-black">B</span>
+              <div>
+                <h2 class="text-lg md:text-xl font-extrabold tracking-tight text-ink-900 dark:text-white">Birbank QR ilə ödəniş</h2>
+                <p class="text-xs text-ink-500 dark:text-ink-400 mt-0.5 flex items-center gap-1.5">
+                  <span class="relative flex w-2 h-2"><span class="absolute inset-0 rounded-full bg-emerald-400 anim-live-pulse"></span><span class="relative rounded-full w-2 h-2 bg-emerald-500"></span></span>
+                  QR ilə ani balans yüklənməsi
+                </p>
               </div>
             </div>
+            <span class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Komissiya {{ commission.label }}</span>
+          </div>
+
+          <div class="mt-6 rounded-2xl border-2 border-ink-200 dark:border-ink-700 bg-ink-50 dark:bg-ink-900/40 p-4 md:p-5 glow-focus">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400 mb-3">Yükləmək istədiyin məbləği daxil et</div>
+            <div class="flex items-center rounded-xl bg-white dark:bg-ink-800 border border-ink-200 dark:border-ink-700 focus-within:border-brand-500 transition">
+              <button @click="stepAmount(-1)" type="button" class="ripple w-12 h-14 text-2xl text-ink-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-l-xl active:scale-90 transition">−</button>
+              <div class="flex-1 flex items-baseline justify-center gap-1.5">
+                <input v-model="amount" type="number" min="1" placeholder="0" class="w-32 bg-transparent outline-none text-center text-4xl font-extrabold tracking-tight text-ink-900 dark:text-white placeholder:text-ink-300 dark:placeholder:text-ink-600"/>
+                <span class="text-sm font-bold text-ink-500 dark:text-ink-400">AZN</span>
+              </div>
+              <button @click="stepAmount(1)" type="button" class="ripple w-12 h-14 text-2xl text-ink-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-r-xl active:scale-90 transition">+</button>
+            </div>
+            <div class="mt-3 grid grid-cols-5 gap-2">
+              <button v-for="q in quicks" :key="q" @click="setAmount(q)" type="button" class="h-10 rounded-lg border text-sm font-bold transition active:scale-95 hover:-translate-y-0.5" :class="Number(amount) === q ? 'bg-brand-500 text-white border-brand-500' : 'bg-white dark:bg-ink-800 border-ink-200 dark:border-ink-700 text-ink-700 dark:text-ink-200 hover:bg-brand-500 hover:text-white hover:border-brand-500'">{{ q }}</button>
+            </div>
+          </div>
+
+          <div class="mt-5 rounded-2xl bg-ink-50 dark:bg-ink-900/40 border border-ink-200 dark:border-ink-700 p-4 md:p-5 space-y-3">
+            <div class="flex items-center justify-between text-sm"><span class="text-ink-500 dark:text-ink-400">Balansa yüklənəcək</span><span class="font-bold text-ink-900 dark:text-white">{{ fmt(commission.balance) }} AZN</span></div>
+            <div class="flex items-center justify-between text-sm"><span class="text-ink-500 dark:text-ink-400">Komissiya ({{ commission.label }})</span><span class="text-brand-500 font-semibold">+{{ fmt(commission.amount) }} AZN</span></div>
+            <div class="pt-3 border-t border-ink-200 dark:border-ink-700 flex items-baseline justify-between">
+              <span class="text-sm font-bold uppercase tracking-wider text-ink-700 dark:text-ink-200">Yekun məbləğ</span>
+              <div class="flex items-baseline gap-1"><span class="text-3xl md:text-4xl font-black text-brand-500 tracking-tight leading-none">{{ fmt(commission.total) }}</span><span class="text-sm font-bold text-brand-500">AZN</span></div>
+            </div>
+          </div>
+
+          <button @click="submitPayment" :disabled="isLoading" type="button" class="ripple shine-wrap w-full mt-5 h-14 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 active:scale-[.99] text-white font-extrabold text-base shadow-pop transition flex items-center justify-center gap-2 disabled:opacity-60">
+            <span>{{ isLoading ? 'Gözləyin...' : 'Ödəniş et' }}</span>
+            <svg v-if="!isLoading" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <div class="mt-4 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
+            <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Secure 256-bit SSL Payment
           </div>
         </div>
       </div>
@@ -239,384 +119,7 @@ const submitPayment = () => {
 </template>
 
 <style scoped>
-/* Same styles as online.vue */
-.online-payment-wrapper {
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-  margin-bottom: 30px;
-  overflow: visible;
-  border: none;
-}
-
-.payment-header-container {
-  background: #F9F9F9;
-  border-radius: 12px;
-  padding: 24px 32px;
-  margin-bottom: 16px;
-}
-
-.payment-form-container {
-  background: #F9F9F9;
-  border-radius: 12px;
-  padding: 20px
-}
-
-.payment-card {
-  width: 100%;
-}
-
-.payment-content {
-  padding: 32px;
-}
-
-.payment-title {
-  font-size: 1.5rem;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #000;
-}
-
-.payment-subtitle {
-  margin: 0;
-  color: #666;
-  font-size: 0.95rem;
-}
-
-.payment-form {
-  padding: 0;
-  background: transparent;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 12px;
-  font-size: 1rem;
-}
-
-.input-button-group {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.input-group {
-  flex: 1;
-  display: flex;
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #e0e0e0;
-  background: #fff;
-  transition: all 0.3s ease;
-  height: 48px;
-}
-
-.input-group:focus-within {
-  border-color: #ff5722;
-  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
-}
-
-.input-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff;
-  padding: 0 16px;
-}
-
-.input-icon svg {
-  width: 12px;
-  height: 14px;
-}
-
-.form-control {
-  flex: 1;
-  padding: 0 16px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #000;
-  background: transparent;
-  height: 48px;
-}
-
-.form-control::placeholder {
-  color: #999;
-}
-
-.form-control:focus {
-  outline: none;
-}
-
-.input-suffix {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff;
-  padding: 0 16px;
-  font-weight: 600;
-  color: #666;
-}
-
 input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.commission-summary {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin-top: 16px;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-}
-
-.summary-label {
-  color: #595959;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 400;
-}
-
-.summary-value {
-  font-weight: 400;
-  color: #000;
-  font-size: 0.95rem;
-}
-
-.commission-value {
-  color: #000;
-  font-weight: 400;
-}
-
-.summary-divider {
-  height: 1px;
-  background: #E5E5E5;
-  margin: 8px 0;
-}
-
-.total-row {
-  padding-top: 4px;
-}
-
-.total-row .summary-label {
-  color: #000;
-  font-weight: 600;
-  font-size: 20px;
-}
-
-.total-row .total-value {
-  font-size: 1.1rem;
-  color: #000;
-  font-weight: 700;
-}
-
-.btn-payment {
-  background: #ff5722;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  min-width: 180px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-payment i {
-  margin-right: 6px;
-}
-
-.btn-payment:hover:not(:disabled) {
-  background: #f4511e;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
-}
-
-.btn-payment:disabled {
-  background: #e0e0e0;
-  color: #999;
-  cursor: not-allowed;
-}
-
-/* Payment Instructions */
-.payment-instructions {
-  background: transparent;
-}
-
-.instruction-container {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.instruction-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  margin-bottom: 20px;
-}
-
-.instruction-logo {
-  width: 56px;
-  height: 56px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border-radius: 12px;
-}
-
-.instruction-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.instruction-title-section {
-  flex: 1;
-}
-
-.instruction-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #000;
-  margin: 0 0 4px 0;
-}
-
-.instruction-subtitle {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0;
-}
-
-.instruction-subheading {
-  font-size: 16px;
-  font-weight: 700;
-  color: #000;
-  margin: 24px 0 12px 0;
-}
-
-.instruction-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px 0;
-}
-
-.instruction-list li {
-  position: relative;
-  padding-left: 24px;
-  color: #454545;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.instruction-list li strong {
-  font-weight: 600;
-}
-
-.instruction-list li:before {
-  content: "•";
-  position: absolute;
-  left: 8px;
-  color: #000;
-  font-weight: bold;
-}
-
-.support-note {
-  text-align: center;
-  color: #666;
-  font-size: 0.9rem;
-  padding-top: 10px;
-  margin-top: 20px;
-}
-
-.support-note p {
-  color: #666;
-}
-
-.support-note a {
-  color: #ff5722;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.support-note a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 576px) {
-  .input-button-group {
-    flex-direction: column;
-    gap: 0;
-  }
-  
-  .input-group {
-    margin-bottom: 16px;
-  }
-  
-  .btn-payment {
-    width: 100%;
-    margin-top: 16px;
-    order: 2;
-  }
-  
-  .commission-summary {
-    order: 1;
-    margin-bottom: 0;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .payment-header {
-    padding: 25px 20px;
-  }
-  
-  .payment-logo {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .payment-method-logo {
-    width: 60px;
-    height: 60px;
-  }
-}
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
 </style>
-
