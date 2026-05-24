@@ -158,14 +158,11 @@ onMounted(() => {
       <form @submit.prevent="sendBasketOrder" name="basket" id="basket" method="post">
         <div class="row reset-margin manual">
           <div class="col-xl-9">
-            <div aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <nuxt-link to="/">Ana Səhifə</nuxt-link>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">Səbətim</li>
-              </ol>
-            </div>
+          <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-[12px] text-ink-500 dark:text-ink-400 mb-4">
+  <nuxt-link to="/" class="hover:text-brand-500 dark:hover:text-brand-400 transition">Ana Səhifə</nuxt-link>
+  <svg class="w-3 h-3 shrink-0 text-ink-300 dark:text-ink-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+  <span class="font-semibold text-ink-900 dark:text-white">Səbətim</span>
+</nav>
             <div v-if="rows.data.length" class="user-cart">
               <table>
                 <thead>

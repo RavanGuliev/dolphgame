@@ -280,7 +280,6 @@ html.dark .right-dashboard {
   box-shadow: none !important;
 }
 html.dark .statistics,
-html.dark .all-information,
 html.dark .card2,
 html.dark .card-body2,
 html.dark .all-payments,
@@ -350,3 +349,16 @@ html.dark .modal-form .form-control {
   color: #fff !important;
 }
 html.dark .right-dashboard .form-control::placeholder { color: #6B7280 !important; }
+
+
+html.dark .cart-price,
+html.dark .cart-parts {
+  background: #1F2937 !important;
+  border-color: #374151 !important;
+}
+html.dark .cart-price strong,
+html.dark .cart-price span,
+html.dark .cart-parts strong,
+html.dark .cart-parts span {
+  color: #ffffff !important;
+}

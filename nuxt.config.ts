@@ -31,14 +31,22 @@ export default defineNuxtConfig({
         }
     },
 
-    vite: {
-        server: {
-            hmr: {
-                protocol: 'ws',
-                host: 'localhost'
-            }
+   vite: {
+    server: {
+        hmr: {
+            protocol: 'ws',
+            host: 'localhost'
         }
     },
+    build: {
+        minify: 'terser',
+        terserOptions: {
+            format: {
+                comments: false
+            }
+        }
+    }
+},
     // wellKnown: {
     //     contentUris: [
     //       { path: 'apple-developer-merchantid-domain-association.txt', content: fs.readFileSync(join(process.cwd(), 'public', 'content.txt'), 'utf8') },
