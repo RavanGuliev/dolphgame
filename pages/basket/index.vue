@@ -220,7 +220,7 @@ onMounted(() => {
                 <div class="text-center"><img src="/img/empty-cart1.svg" width="110" height="110"
                                               class="mb-2">
                   <h3><strong>Səbətiniz boşdur</strong></h3>
-                  <h4>Bizi seçdiyiniz üçün təşəkkür edirik ! 😊</h4>
+                  <h4>Bizi seçdiyiniz üçün təşəkkür edirik ! </h4>
                   <nuxt-link to="/games" class="goo"><i class="fas fa-arrow-alt-left"></i>
                     Alış-verişə davam
                     et

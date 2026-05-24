@@ -362,3 +362,16 @@ html.dark .cart-parts strong,
 html.dark .cart-parts span {
   color: #ffffff !important;
 }
+
+html.dark .best-sell-games .games {
+  background: #1F2937 !important;
+  border-color: #374151 !important;
+}
+
+
+html.dark .tab-products,
+html.dark .tab-games,
+html.dark .tab-pane {
+  background: #1F2937 !important;
+  border-color: #374151 !important;
+}
