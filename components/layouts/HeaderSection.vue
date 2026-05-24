@@ -120,11 +120,18 @@ const openMobileMenu = () => {
   mobileMenuOpen.value = true;
 };
 
-const mobileRailList = computed(() =>
-  mobileRail.value === "all"
-    ? categoryList.value
-    : activeCat.value?.games ?? []
-);
+// const mobileRailList = computed(() =>
+//   mobileRail.value === "all"
+//     ? categoryList.value
+//     : activeCat.value?.games ?? []
+// );
+
+
+const mobileRailList = computed(() => {
+  if (mobileRail.value === "all") return categoryList.value;
+  const cat = categoryList.value.find((c: any) => c.slug === mobileRail.value);
+  return cat?.games ?? [];
+});
 
 // ---------------- Auth modal (new Tailwind design) ----------------
 type AuthTab = "login" | "signup" | "reset" | "newpass";
