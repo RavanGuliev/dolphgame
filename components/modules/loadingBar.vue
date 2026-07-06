@@ -1,38 +1,27 @@
 <script setup lang="ts">
-
 </script>
 
 <template>
   <div class="loading-bar">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="Preloader">
-            <div class="Loader">
-            <img src="/img/loading.svg">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <img src="/img/loading.svg" class="loading-img" alt="Yüklənir…" />
   </div>
-
 </template>
 
 <style scoped>
 .loading-bar {
-  width: 100%;
-  height: 100%;
   position: fixed;
+  inset: 0;
   z-index: 50000;
   display: flex;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
-.loading-bar .Preloader img {
-  width: 200px !important;
-  height: 200px !important;
+.loading-img {
+  width: 120px;
+  height: 120px;
 }
-
 </style>

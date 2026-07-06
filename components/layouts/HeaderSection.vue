@@ -21,13 +21,35 @@ const userStore1 = userStore();
 const basketStore1 = basketStore();
 const { notifications, notifications_count } = storeToRefs(userStore1);
 const { setNotifications } = userStore1;
-const { baskets_count } = storeToRefs(basketStore1);
+const { baskets_count, baskets } = storeToRefs(basketStore1);
 const { setBaskets } = basketStore1;
+
+const deleteBasketItem = (basket_id: any) => {
+  $api.delete('user/basket/delete?basket_id=' + basket_id, headers.value)
+    .then(() => {
+      $api.get('user/basket', headers.value).then((r: any) => setBaskets(r.data));
+    })
+    .catch((err: any) => $toast.error(err));
+};
+
+const basketItems = computed<any[]>(() => {
+  if (!baskets.value || !Array.isArray(baskets.value)) return [];
+  return baskets.value as any[];
+});
+
+const basketTotal = computed(() => {
+  return basketItems.value.reduce((sum: number, item: any) => sum + (item.product.price * item.count), 0).toFixed(2);
+});
 const { setLoading } = loadingStore();
 const tokenCookie = useCookie("token", { maxAge: 60 * 60 * 24 * 200 });
 
 $api.get("public/categories").then((res: any) => {
   categories.value = res;
+});
+
+const socialCatProducts = ref<any[]>([]);
+$api.get("public/category?slug=dolphdigital").then((res: any) => {
+  socialCatProducts.value = res?.data?.games ?? [];
 });
 
 const logout = () => {
@@ -274,10 +296,13 @@ watch(anyOverlayOpen, (open) => {
   document.body.style.overflow = open ? "hidden" : "";
 });
 
+const premiumOpen = ref(false);
+
 const onDocClick = (e: MouseEvent) => {
   const t = e.target as HTMLElement;
   if (!t.closest("[data-dolph-nav]")) closeMega();
   if (searchOpen.value && !t.closest("[data-dolph-search]")) searchOpen.value = false;
+  if (premiumOpen.value && !t.closest("[data-dolph-premium]")) premiumOpen.value = false;
 };
 const onKey = (e: KeyboardEvent) => {
   if (e.key !== "Escape") return;
@@ -288,6 +313,7 @@ const onKey = (e: KeyboardEvent) => {
   notifOpen.value = false;
   cartOpen.value = false;
   mobileMenuOpen.value = false;
+  premiumOpen.value = false;
 };
 
 // Allow other parts of the app (e.g. the auth middleware) to open the modal
@@ -347,10 +373,78 @@ const socialLinks = [
         </div>
 
         <div class="flex items-center gap-3">
-          <nuxt-link to="/pages/about" class="hidden lg:flex items-center gap-1.5 text-ink-600 dark:text-ink-300 hover:text-brand-500 transition px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-ink-900/50">
-            <svg class="w-3.5 h-3.5 text-sky-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span class="font-semibold">DolPh <span class="text-brand-500">Premium</span></span>
-          </nuxt-link>
+          <div class="hidden lg:block relative" data-dolph-premium>
+            <button @click="premiumOpen = !premiumOpen" type="button" class="flex items-center gap-1.5 text-ink-600 dark:text-ink-300 hover:text-brand-500 transition px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-ink-900/50" :class="{ 'text-brand-500': premiumOpen }">
+              <svg class="w-3.5 h-3.5 text-sky-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span class="font-semibold">DolPh <span class="text-brand-500">Premium</span></span>
+              <svg class="w-3 h-3 opacity-60 transition-transform" :class="{ 'rotate-180': premiumOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+
+            <!-- Dropdown mega -->
+            <div v-show="premiumOpen" class="absolute right-0 top-full mt-2 w-[460px] bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 rounded-2xl shadow-lift overflow-hidden z-50 anim-fade-down">
+              <div class="grid grid-cols-[1fr_200px] divide-x divide-ink-100 dark:divide-ink-800">
+
+                <!-- Sol sütun: korporat linklər -->
+                <div class="p-4">
+                  <div class="text-[10px] font-black uppercase tracking-widest text-ink-400 dark:text-ink-500 mb-3 px-1">Korporat</div>
+                  <div class="flex flex-col gap-0.5">
+                    <nuxt-link to="/pages/about" @click="premiumOpen = false" class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[13px] font-medium">
+                      <svg class="w-3.5 h-3.5 shrink-0 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                      Haqqımızda
+                    </nuxt-link>
+                    <nuxt-link to="/pages/contact" @click="premiumOpen = false" class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[13px] font-medium">
+                      <svg class="w-3.5 h-3.5 shrink-0 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                      Əlaqə
+                    </nuxt-link>
+                    <nuxt-link to="/pages/faq" @click="premiumOpen = false" class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[13px] font-medium">
+                      <svg class="w-3.5 h-3.5 shrink-0 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+                      Sual-Cavab (FAQ)
+                    </nuxt-link>
+                    <nuxt-link to="/pages/privacy" @click="premiumOpen = false" class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[13px] font-medium">
+                      <svg class="w-3.5 h-3.5 shrink-0 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+                      Gizlilik Siyasəti
+                    </nuxt-link>
+                    <nuxt-link to="/blogs" @click="premiumOpen = false" class="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[13px] font-medium">
+                      <svg class="w-3.5 h-3.5 shrink-0 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18"/></svg>
+                      Bloq
+                    </nuxt-link>
+                  </div>
+                </div>
+
+                <!-- Sağ sütun: featured -->
+                <div class="p-4 flex flex-col gap-2">
+                  <div class="text-[10px] font-black uppercase tracking-widest text-ink-400 dark:text-ink-500 mb-1 px-1">Oyunçular üçün</div>
+
+                  <!-- Dark card buttons -->
+                  <nuxt-link to="/games" @click="premiumOpen = false" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-ink-900 dark:bg-ink-800 hover:bg-ink-800 dark:hover:bg-ink-700 transition group">
+                    <svg class="w-4 h-4 text-brand-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="9" height="9" rx="1.5"/><rect x="13" y="7" width="9" height="9" rx="1.5"/><rect x="2" y="2" width="9" height="4" rx="1"/><rect x="13" y="2" width="9" height="4" rx="1"/></svg>
+                    <span class="text-[12.5px] font-bold text-white tracking-wide uppercase">Oyunlar</span>
+                  </nuxt-link>
+                  <nuxt-link to="/category/dolphdigital" @click="premiumOpen = false" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-ink-900 dark:bg-ink-800 hover:bg-ink-800 dark:hover:bg-ink-700 transition group">
+                    <svg class="w-4 h-4 text-violet-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9.5C.5 7.5 3 4 6.5 4c1.8 0 3.5 1 5.5 3 2-2 3.7-3 5.5-3 3.5 0 6 3.5 4 7.5C19 16.5 12 21 12 21z"/></svg>
+                    <span class="text-[12.5px] font-bold text-white tracking-wide uppercase">Sosial Media</span>
+                  </nuxt-link>
+
+                  <!-- Arrow link cards -->
+                  <div class="flex flex-col gap-1.5 mt-1">
+                    <nuxt-link to="/pages/contact" @click="premiumOpen = false" class="flex items-center justify-between px-3 py-2 rounded-xl border border-ink-100 dark:border-ink-800 hover:border-brand-500 dark:hover:border-brand-500 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[12.5px] font-semibold group">
+                      <span>Dəstək Mərkəzi</span>
+                      <svg class="w-3.5 h-3.5 text-ink-300 group-hover:text-brand-500 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </nuxt-link>
+                    <nuxt-link to="/blogs" @click="premiumOpen = false" class="flex items-center justify-between px-3 py-2 rounded-xl border border-ink-100 dark:border-ink-800 hover:border-brand-500 dark:hover:border-brand-500 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[12.5px] font-semibold group">
+                      <span>DolPh Bloq</span>
+                      <svg class="w-3.5 h-3.5 text-ink-300 group-hover:text-brand-500 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </nuxt-link>
+                    <nuxt-link to="/basket" @click="premiumOpen = false" class="flex items-center justify-between px-3 py-2 rounded-xl border border-ink-100 dark:border-ink-800 hover:border-brand-500 dark:hover:border-brand-500 text-ink-700 dark:text-ink-300 hover:text-brand-500 transition text-[12.5px] font-semibold group">
+                      <span>Səbətim</span>
+                      <svg class="w-3.5 h-3.5 text-ink-300 group-hover:text-brand-500 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </nuxt-link>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
           <span class="w-px h-4 bg-ink-200 dark:bg-ink-800 hidden lg:block"></span>
 
           <!-- Dark / Light SLIDER toggle -->
@@ -613,16 +707,31 @@ const socialLinks = [
                   <div class="text-[11px] text-ink-500 dark:text-ink-400">Abunəliklər və takipçi xidmətləri</div>
                 </div>
               </div>
-              <button @click="closeMega" type="button" aria-label="Bağla" class="hidden md:grid w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-800 hover:bg-ink-200 dark:hover:bg-ink-700 place-items-center text-ink-500 transition">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-              </button>
+              <div class="hidden md:flex items-center gap-3">
+                <nuxt-link to="/category/dolphdigital" @click="closeMega" class="text-xs font-bold text-brand-500 hover:text-brand-600 flex items-center gap-1 transition">
+                  Hamısına bax
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </nuxt-link>
+                <button @click="closeMega" type="button" aria-label="Bağla" class="w-8 h-8 rounded-lg bg-ink-100 dark:bg-ink-800 hover:bg-ink-200 dark:hover:bg-ink-700 grid place-items-center text-ink-500 transition">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
             </div>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5">
-              <a v-for="s in socialLinks" :key="s.name" :href="s.href" target="_blank" class="group flex flex-col items-center gap-2 p-3 rounded-xl bg-ink-50 dark:bg-ink-800/60 hover:bg-white dark:hover:bg-ink-800 border border-transparent hover:border-brand-500 hover:-translate-y-0.5 hover:shadow-pop transition">
-                <span class="w-11 h-11 rounded-xl grid place-items-center text-white shadow-sm" :style="{ background: s.bg }" v-html="s.icon"></span>
-                <span class="text-[11px] font-semibold text-ink-800 dark:text-white">{{ s.name }}</span>
-              </a>
+            <div v-if="socialCatProducts.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              <nuxt-link
+                v-for="game in socialCatProducts"
+                :key="game.id"
+                :to="'/game/' + game.slug"
+                @click="closeMega"
+                class="cat-drop-card group flex items-center gap-2.5 p-2.5 rounded-xl bg-ink-50 dark:bg-ink-800/60 border border-transparent"
+              >
+                <span class="w-10 h-10 rounded-lg bg-white dark:bg-ink-700 grid place-items-center shrink-0 shadow-sm overflow-hidden">
+                  <img :src="game.image" :alt="game.name" class="w-7 h-7 object-contain" loading="lazy" />
+                </span>
+                <span class="text-sm font-semibold text-ink-800 dark:text-white truncate">{{ game.name }}</span>
+              </nuxt-link>
             </div>
+            <div v-else class="text-sm text-ink-500 dark:text-ink-400 py-4">Məhsul tapılmadı.</div>
           </div>
         </div>
 
@@ -1034,16 +1143,45 @@ const socialLinks = [
             </div>
           </div>
 
-          <div class="text-center py-4">
-            <div class="relative w-24 h-24 mx-auto rounded-full bg-brand-500/10 border border-brand-500/20 grid place-items-center">
-              <span aria-hidden="true" class="absolute inset-0 rounded-full anim-glow-breath bg-brand-500/20 blur-md -z-10"></span>
-              <svg class="w-10 h-10 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+          <!-- Basket items list -->
+          <div v-if="basketItems.length" class="space-y-2">
+            <div v-for="item in basketItems" :key="item.basket_id" class="flex items-center gap-3 p-3 rounded-xl bg-ink-50 dark:bg-ink-800/60 border border-ink-200 dark:border-ink-800">
+              <nuxt-link :to="{ name: 'game-product-slug', params: { slug: item.product.slug } }" @click="cartOpen = false" class="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-white dark:bg-ink-700 border border-ink-200 dark:border-ink-700">
+                <img :src="item.product.image" :alt="item.product.name" class="w-full h-full object-contain" loading="lazy" />
+              </nuxt-link>
+              <div class="flex-1 min-w-0">
+                <nuxt-link :to="{ name: 'game-product-slug', params: { slug: item.product.slug } }" @click="cartOpen = false" class="text-[13px] font-bold text-ink-900 dark:text-white truncate block hover:text-brand-500 transition">{{ item.product.name }}</nuxt-link>
+                <div class="mt-0.5 text-[12px] text-emerald-600 dark:text-emerald-400 font-semibold tabular-nums">{{ Number(item.product.price).toFixed(2) }} AZN × {{ item.count }}</div>
+              </div>
+              <button @click="deleteBasketItem(item.basket_id)" type="button" class="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 grid place-items-center shrink-0 transition">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
             </div>
-            <div class="mt-4 text-[15px] font-extrabold text-ink-900 dark:text-white">{{ baskets_count > 0 ? 'Səbətinizdə məhsul var' : 'Səbətiniz boşdur' }}</div>
-            <div class="mt-1 text-[12px] text-ink-500 dark:text-ink-400">Alış-verişə başlayın və sevdiyiniz məhsulları əlavə edin.</div>
-            <nuxt-link to="/basket" @click="cartOpen = false" class="mt-4 h-11 w-full rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-[13px] tracking-wide transition flex items-center justify-center gap-2 ripple shine-wrap shadow-pop">
+          </div>
+          <!-- Empty state -->
+          <div v-else class="text-center py-6">
+            <div class="relative w-20 h-20 mx-auto rounded-full bg-brand-500/10 border border-brand-500/20 grid place-items-center">
+              <span aria-hidden="true" class="absolute inset-0 rounded-full anim-glow-breath bg-brand-500/20 blur-md -z-10"></span>
+              <svg class="w-9 h-9 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+            </div>
+            <div class="mt-3 text-[14px] font-extrabold text-ink-900 dark:text-white">Səbətiniz boşdur</div>
+            <div class="mt-1 text-[12px] text-ink-500 dark:text-ink-400">Sevdiyiniz məhsulları əlavə edin.</div>
+          </div>
+
+          <!-- Total + action -->
+          <div v-if="basketItems.length" class="space-y-2 pt-2 border-t border-ink-100 dark:border-ink-800">
+            <div class="flex items-center justify-between px-1 py-1">
+              <span class="text-[13px] font-bold text-ink-700 dark:text-ink-200">Cəmi:</span>
+              <span class="text-[14px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{{ basketTotal }} AZN</span>
+            </div>
+            <nuxt-link to="/basket" @click="cartOpen = false" class="h-11 w-full rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-extrabold text-[13px] tracking-wide transition flex items-center justify-center gap-2 ripple shine-wrap shadow-pop">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-              {{ baskets_count > 0 ? 'Səbətə keç' : 'Alış-verişə başla' }}
+              Səbətə keç
+            </nuxt-link>
+          </div>
+          <div v-else class="pt-2">
+            <nuxt-link to="/games" @click="cartOpen = false" class="h-11 w-full rounded-xl bg-ink-100 dark:bg-ink-800 hover:bg-ink-200 dark:hover:bg-ink-700 text-ink-700 dark:text-ink-200 font-extrabold text-[13px] transition flex items-center justify-center gap-2">
+              Alış-verişə başla
             </nuxt-link>
           </div>
         </div>

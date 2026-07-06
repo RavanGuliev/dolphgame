@@ -6,7 +6,6 @@ export default defineNuxtRouteMiddleware(() => {
     if (!token.value) {
         if (process.client) {
             $toast.warning('Zəhmət olmasa əvvəlcə şəxsi kabinetə giriş edin')
-            // Ask the header to open the login modal (HeaderSection listens for this)
             window.dispatchEvent(new CustomEvent('dolph-open-auth', { detail: 'login' }))
         }
         return navigateTo('/')

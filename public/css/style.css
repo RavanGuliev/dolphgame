@@ -1135,7 +1135,7 @@ header nav {
 .swiper-slide {
     text-align: center;
     font-size: 18px;
-    background: #fff;
+    background: transparent;
 
     /* Center slide text vertically */
     display: -webkit-box;
@@ -1269,8 +1269,6 @@ header nav {
 .category-tabs .nav-item {
     width: calc(100% / 6);
     text-align: center;
-    border: 1px solid white;
-    border-right: 0;
 }
 
 .category-tabs .nav-item:first-child {
@@ -1279,7 +1277,6 @@ header nav {
 }
 
 .category-tabs .nav-item:last-child {
-    border-right: 1px solid white;
     border-bottom-right-radius: 5px !important;
     border-top-right-radius: 5px !important;
 }
@@ -4261,6 +4258,26 @@ input.qtyminus {
 
 /*CONTACT PAGE SECTION*/
 
+.heading_s1 h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.heading_s1 h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #FC2203, #ff9900);
+    border-radius: 2px;
+}
+
 .inform-blog {
     text-align: center;
     margin-bottom: 20px;
@@ -4314,32 +4331,48 @@ input.qtyminus {
     color: #646464;
     font-size: 14px;
     border-color: #e6e6e6;
+    border-radius: 5px;
+    transition: 300ms;
 }
 
 .field_form input:focus,
 .field_form textarea:focus {
     box-shadow: none;
-    border-color: rgb(45 195 45 / 45%);
+    border-color: #f9a533;
+    background-color: #fff9f3;
 }
 
 .field_form textarea {
     font-size: 14px;
     color: #646464;
     border-color: #e6e6e6;
+    border-radius: 5px;
+    transition: 300ms;
+}
+
+.field_form textarea:focus {
+    border-color: #f9a533;
+    background-color: #fff9f3;
 }
 
 #submitButton {
-    background: #15af15;
+    background: linear-gradient(90deg, #FC2203, #ff9900);
     float: right;
     color: white;
     padding: 10px;
     padding-left: 25px;
     padding-right: 25px;
     box-shadow: none;
+    border: none;
+    font-weight: 600;
+    transition: 300ms;
 }
 
 #submitButton:hover {
-    background: #1d9438;
+    background: linear-gradient(90deg, #ff9900, #FC2203);
+    transition: 300ms;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(252, 34, 3, 0.3);
 }
 
 iframe {
@@ -8284,4 +8317,25 @@ h6,
         border-top: 1px solid #f1f5f9;
         padding-top: 15px;
     }
+}
+
+/* ── Dark mode overrides for legacy tab product cards ── */
+.dark .tabs-game {
+    background: #1F2937;
+}
+.dark .game-inform {
+    background: #1F2937;
+}
+.dark .game-inform p a {
+    color: #F9FAFB;
+}
+.dark .game-inform strong {
+    color: #34d399;
+}
+.dark .game-inform del {
+    color: #6B7280;
+}
+.dark .sub-hover {
+    background: #1F2937;
+}
 }

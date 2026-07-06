@@ -34,17 +34,74 @@ const config = useRuntimeConfig();
 const step = ref(1);
 const visible = ref(false);
 const howOpen = ref(false);
-const fmt = (n: any) => Number(n || 0).toFixed(2);
+const fmt = (n: any) => (Math.round(Number(n || 0) * 100) / 100).toFixed(2);
 const total = computed(() => fmt((product.value?.price ?? 0) * qty.value));
 const bonusTotal = computed(() => (product.value?.bonus ?? 0) * qty.value);
 const infoKeys = computed(() => Object.keys(game.value?.info || {}));
 const canContinue = computed(() => infoKeys.value.every((k) => (infos.value[k] || "").toString().trim()));
+const commissionRate = computed(() => {
+  if (paymentMethod.value === "balance") return 0;
+  if (paymentMethod.value === "9" || paymentMethod.value === "10") return 0.015;
+  return 0.03;
+});
+const totalWithCommission = computed(() => {
+  if (commissionRate.value === 0) return total.value;
+  const base = (product.value?.price ?? 0) * qty.value;
+  return (Math.ceil(base * (1 + commissionRate.value) * 100) / 100).toFixed(2);
+});
+const commissionAmount = computed(() => {
+  if (commissionRate.value === 0) return "0.00";
+  return (parseFloat(totalWithCommission.value) - parseFloat(total.value)).toFixed(2);
+});
 const commissionLabel = computed(() => {
   if (paymentMethod.value === "balance") return "Komissiyasız";
   if (paymentMethod.value === "epoint") return "Kart komissiyası 3%";
   if (paymentMethod.value === "9" || paymentMethod.value === "10") return "Komissiya 1,5%";
   return "Komissiya 3%";
 });
+
+// ── G2Bulk ID yoxlama ──
+const needsVerify = computed(() => {
+  const name = (game.value?.name || "").toLowerCase();
+  const cat  = (game.value?.category?.name || "").toLowerCase();
+  return name.includes("pubg") || cat.includes("pubg");
+});
+
+const verifyStatus = ref<null | "loading" | "ok" | "fail">(null);
+const verifiedName = ref("");
+
+// info dəyişəndə yoxlama sıfırla
+watch(infos, () => { verifyStatus.value = null; verifiedName.value = ""; }, { deep: true });
+
+const verifyPlayerId = async () => {
+  const uidKey  = infoKeys.value.find((k: string) => /player.?id|uid|oyuncu/i.test(k)) || infoKeys.value[0];
+  const zoneKey = infoKeys.value.find((k: string) => /zone.?id|server/i.test(k))       || infoKeys.value[1];
+  const uid     = (infos.value[uidKey] || "").trim();
+  const zoneId  = (infos.value[zoneKey] || "").trim();
+
+  if (!uid) { ($toast as any).error("Player ID daxil edin"); return; }
+
+  const gameName = (game.value?.name || "").toLowerCase();
+  const gameCode = gameName.includes("pubg") ? "pubgm" : (game.value?.slug || "");
+
+  verifyStatus.value = "loading";
+  verifiedName.value = "";
+
+  try {
+    const data: any = await $fetch("/api/check-player", {
+      method: "POST",
+      body: { game: gameCode, user_id: uid, server_id: zoneId || undefined },
+    });
+    if (data?.valid === "valid" && data?.name) {
+      verifiedName.value = data.name;
+      verifyStatus.value = "ok";
+    } else {
+      verifyStatus.value = "fail";
+    }
+  } catch {
+    verifyStatus.value = "fail";
+  }
+};
 
 const close = () => {
   visible.value = false;
@@ -116,14 +173,18 @@ const makeOrder = () => {
       },
       headers.value
     )
-    .then((res) => {
+    .then((res: any) => {
       if (paymentMethod.value === "balance") {
-        $toast.success(res.data);
-        $api.get("user", headers.value).then((r) => setUserData(r.data));
+        $toast.success(res?.data);
+        ($api as any).get("user", headers.value).then((r: any) => setUserData(r.data));
         close();
         router.push("/user/dashboard/orders");
-      } else {
+      } else if (res?.data) {
         window.location.href = res.data;
+      } else {
+        ($toast as any).success("Sifariş qəbul edildi");
+        close();
+        router.push("/user/dashboard/orders");
       }
     })
     .catch((err) => $toast.error(err))
@@ -195,6 +256,35 @@ const makeOrder = () => {
               <input v-model="infos[key]" type="text" :placeholder="placeholder" class="w-full h-11 px-4 rounded-xl bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition text-[14px] font-semibold tracking-wide placeholder:text-ink-400 placeholder:font-normal text-ink-900 dark:text-white" />
             </div>
 
+            <!-- G2Bulk ID yoxlama (yalnız PUBG) -->
+            <template v-if="needsVerify">
+              <button
+                @click="verifyPlayerId"
+                :disabled="!canContinue || verifyStatus === 'loading'"
+                type="button"
+                class="w-full h-10 rounded-xl font-bold text-[13px] flex items-center justify-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                :class="verifyStatus === 'ok'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30'
+                  : verifyStatus === 'fail'
+                    ? 'bg-red-50 dark:bg-red-500/10 text-red-500 ring-1 ring-red-500/30'
+                    : 'bg-ink-50 dark:bg-ink-800 text-ink-700 dark:text-ink-200 ring-1 ring-ink-200 dark:ring-ink-700 hover:ring-brand-500 hover:text-brand-500'"
+              >
+                <!-- Loading -->
+                <svg v-if="verifyStatus === 'loading'" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.22-8.56"/></svg>
+                <!-- OK -->
+                <svg v-else-if="verifyStatus === 'ok'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <!-- Fail -->
+                <svg v-else-if="verifyStatus === 'fail'" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <!-- Default -->
+                <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1112 2"/><polyline points="22 4 12 14 9 11"/></svg>
+
+                <span v-if="verifyStatus === 'loading'">Yoxlanılır…</span>
+                <span v-else-if="verifyStatus === 'ok'">Təsdiqləndi — {{ verifiedName }}</span>
+                <span v-else-if="verifyStatus === 'fail'">ID tapılmadı — yenidən yoxla</span>
+                <span v-else>Player ID-ni yoxla</span>
+              </button>
+            </template>
+
             <button v-if="game.how" @click="howOpen = !howOpen" type="button" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-ink-50 dark:bg-ink-900/50 border border-ink-200 dark:border-ink-700 hover:border-brand-500/50 transition">
               <span class="inline-flex items-center gap-2 text-[12px] font-bold text-ink-800 dark:text-ink-200">
                 <svg class="w-3.5 h-3.5 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
@@ -206,10 +296,18 @@ const makeOrder = () => {
           </div>
 
           <div class="px-5 pb-5 pt-3">
-            <button @click="goPay" type="button" class="ripple shine-wrap w-full h-12 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-[.98] text-white text-[14px] font-bold flex items-center justify-center gap-2 shadow-pop transition">
+            <button
+              @click="goPay"
+              :disabled="needsVerify && verifyStatus !== 'ok'"
+              type="button"
+              class="ripple shine-wrap w-full h-12 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-[.98] text-white text-[14px] font-bold flex items-center justify-center gap-2 shadow-pop transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-500"
+            >
               <span>Davam et</span>
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
+            <p v-if="needsVerify && verifyStatus !== 'ok'" class="mt-2 text-center text-[11px] text-ink-400 dark:text-ink-500">
+              Davam etmək üçün əvvəlcə Player ID-ni yoxlayın
+            </p>
           </div>
         </template>
 
@@ -288,9 +386,12 @@ const makeOrder = () => {
           <div class="mx-5 mt-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-between">
             <div class="min-w-0">
               <div class="text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Yekun məbləğ</div>
-              <div class="text-[11px] text-emerald-700 dark:text-emerald-300/80 leading-tight mt-0.5">{{ commissionLabel }}</div>
+              <div class="text-[11px] text-emerald-700 dark:text-emerald-300/80 leading-tight mt-0.5">
+                {{ commissionLabel }}
+                <template v-if="commissionRate > 0">· {{ total }} + {{ commissionAmount }} AZN</template>
+              </div>
             </div>
-            <div class="text-[18px] font-black text-emerald-700 dark:text-emerald-300 tabular-nums">{{ total }} AZN</div>
+            <div class="text-[18px] font-black text-emerald-700 dark:text-emerald-300 tabular-nums">{{ totalWithCommission }} AZN</div>
           </div>
 
           <div class="px-5 pb-5 pt-3">

@@ -18,14 +18,7 @@ const others = await $api.get(`public/category?slug=${game.category.slug}`).then
 const basket = basketStore();
 const { setBaskets } = basket;
 
-// ── Design rule: a category is "game currency" if ANY of its games needs an
-// in-game "ID" (Player ID / User ID / Zone ID …). Then every game in it — incl.
-// the e-pin variant (which has no info) — uses the pubg-uc vertical list.
-// Subscriptions (WhatsApp), social panels (profil tag/link) and gift cards → grid.
-const isGameCurrency = computed(() => {
-  const list: any[] = others.games || [];
-  return list.some((g) => Object.keys(g.info || {}).some((k) => /\bid\b/i.test(k)));
-});
+const isDigital = computed(() => game.category.slug === 'dolphdigital');
 
 // ── qty keyed by product id (robust to sort/filter) ──
 const qty = ref<Record<number, number>>({});
@@ -106,7 +99,7 @@ useHead({
     </nav>
 
     <!-- ════════════════ GAME CURRENCY (pubg-uc.html) ════════════════ -->
-    <template v-if="isGameCurrency">
+    <template v-if="!isDigital">
       <!-- HERO -->
       <section class="relative overflow-hidden rounded-2xl mb-5 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800">
         <span aria-hidden="true" class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent"></span>

@@ -34,6 +34,7 @@ const discountPct = computed(() => {
 
 const basket = basketStore();
 const { setBaskets } = basket;
+const { user } = storeToRefs(auth);
 
 const decrement = () => {
   if (isLocked.value) return $toast.error("Maksimum sifariş limiti 1 ədəddir.");
@@ -45,6 +46,12 @@ const increment = () => {
 };
 
 const addBasket = (id: any, q: any) => {
+  if (!user.value) {
+    if (process.client) {
+      window.dispatchEvent(new CustomEvent('dolph-open-auth', { detail: 'login' }));
+    }
+    return;
+  }
   $api
     .post("user/basket/add", { id, count: q }, headers.value)
     .then((res) => {
