@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import {generalStore} from "~/stores/generalStore";
 import { Swiper, SwiperSlide} from 'swiper/vue';
-import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
+import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
 import {authStore} from "~/stores/authStore";
 import {formatDateOnly} from "~/utils/dateFormatter";
 

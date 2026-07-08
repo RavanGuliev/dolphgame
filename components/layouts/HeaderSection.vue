@@ -354,6 +354,8 @@ const socialLinks = [
 
 <template>
   <div>
+    <!-- ════════ Sticky wrapper — keeps the whole header (tier 1+2+3) fixed on scroll ════════ -->
+    <div class="sticky top-0 z-40">
     <!-- ════════ TIER 1 — TOP UTILITY BAR ════════ -->
     <div class="hidden md:block bg-ink-100 dark:bg-ink-950 border-b border-ink-200 dark:border-ink-800">
       <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
@@ -463,7 +465,7 @@ const socialLinks = [
     </div>
 
     <!-- ════════ TIER 2 — MAIN HEADER ════════ -->
-    <header class="sticky top-0 z-40 bg-white/95 dark:bg-ink-900/95 backdrop-blur border-b border-ink-200 dark:border-ink-800" data-dolph-nav>
+    <header class="bg-white/95 dark:bg-ink-900/95 backdrop-blur border-b border-ink-200 dark:border-ink-800" data-dolph-nav>
       <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-8">
         <!-- Mobile burger -->
         <button @click="openMobileMenu" type="button" aria-label="Menyu" class="md:hidden w-10 h-10 rounded-xl bg-ink-100 dark:bg-ink-800 grid place-items-center hover:bg-ink-200 dark:hover:bg-ink-700 active:scale-95 transition shrink-0">
@@ -771,6 +773,7 @@ const socialLinks = [
         </div>
       </nav>
     </header>
+    </div>
 
     <!-- ════════ AUTH MODAL (new Tailwind design) ════════ -->
     <div v-if="!user && authModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-6">
