@@ -70,16 +70,16 @@ const needsVerify = computed(() => {
 const verifyStatus = ref<null | "loading" | "ok" | "fail">(null);
 const verifiedName = ref("");
 
-// info dəyişəndə yoxlama sıfırla
-watch(infos, () => { verifyStatus.value = null; verifiedName.value = ""; }, { deep: true });
+const uidKey  = computed(() => infoKeys.value.find((k: string) => /player.?id|uid|oyuncu/i.test(k)) || infoKeys.value[0]);
+const zoneKey = computed(() => infoKeys.value.find((k: string) => /zone.?id|server/i.test(k))       || infoKeys.value[1]);
+
+let verifyTimer: ReturnType<typeof setTimeout> | null = null;
 
 const verifyPlayerId = async () => {
-  const uidKey  = infoKeys.value.find((k: string) => /player.?id|uid|oyuncu/i.test(k)) || infoKeys.value[0];
-  const zoneKey = infoKeys.value.find((k: string) => /zone.?id|server/i.test(k))       || infoKeys.value[1];
-  const uid     = (infos.value[uidKey] || "").trim();
-  const zoneId  = (infos.value[zoneKey] || "").trim();
+  const uid    = (infos.value[uidKey.value] || "").trim();
+  const zoneId = (infos.value[zoneKey.value] || "").trim();
 
-  if (!uid) { ($toast as any).error("Player ID daxil edin"); return; }
+  if (!uid) return;
 
   const gameName = (game.value?.name || "").toLowerCase();
   const gameCode = gameName.includes("pubg") ? "pubgm" : (game.value?.slug || "");
@@ -102,6 +102,17 @@ const verifyPlayerId = async () => {
     verifyStatus.value = "fail";
   }
 };
+
+// ID yazılan kimi (debounce ilə) avtomatik yoxla — buttona basmağa ehtiyac yoxdur
+watch(infos, () => {
+  verifyStatus.value = null;
+  verifiedName.value = "";
+  if (verifyTimer) clearTimeout(verifyTimer);
+  if (!needsVerify.value) return;
+  const uid = (infos.value[uidKey.value] || "").trim();
+  if (!uid) return;
+  verifyTimer = setTimeout(() => verifyPlayerId(), 600);
+}, { deep: true });
 
 const close = () => {
   visible.value = false;
@@ -156,6 +167,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener("keydown", onKey);
   document.body.style.overflow = "";
+  if (verifyTimer) clearTimeout(verifyTimer);
 });
 
 const makeOrder = () => {
