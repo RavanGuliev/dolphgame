@@ -47,7 +47,7 @@ const commissionRate = computed(() => {
 const totalWithCommission = computed(() => {
   if (commissionRate.value === 0) return total.value;
   const base = (product.value?.price ?? 0) * qty.value;
-  return (Math.ceil(base * (1 + commissionRate.value) * 100) / 100).toFixed(2);
+  return (Math.ceil((base / (1 - commissionRate.value)) * 100) / 100).toFixed(2);
 });
 const commissionAmount = computed(() => {
   if (commissionRate.value === 0) return "0.00";

@@ -19,8 +19,24 @@ const free_fire = ref([])
 const point_blank = ref([])
 const valorant = ref([])
 const blogs = ref([])
+const reviews = ref([])
 const auth = authStore()
 const {headers} = storeToRefs(auth)
+
+const avatarGradients = [
+  'from-brand-500 to-[#FF6A2E]',
+  'from-violet-500 to-fuchsia-500',
+  'from-sky-500 to-emerald-500',
+]
+function timeAgo(dateString: string) {
+  if (!dateString) return ''
+  const diff = (Date.now() - new Date(dateString).getTime()) / 1000
+  if (diff < 3600) return Math.max(1, Math.floor(diff / 60)) + ' dəqiqə əvvəl'
+  if (diff < 86400) return Math.floor(diff / 3600) + ' saat əvvəl'
+  if (diff < 604800) return Math.floor(diff / 86400) + ' gün əvvəl'
+  if (diff < 2592000) return Math.floor(diff / 604800) + ' həftə əvvəl'
+  return Math.floor(diff / 2592000) + ' ay əvvəl'
+}
 
 useHead({
   title: data.value.title,
@@ -54,6 +70,9 @@ $api.get('public/products?game=6&count=10', headers.value).then(res => {
 })
 $api.get('public/blogs?count=3').then(res => {
   blogs.value = res
+})
+$api.get('public/comments?game=1&count=3').then(res => {
+  reviews.value = res
 })
 
 const bsTabs = [
@@ -229,7 +248,7 @@ const activeProducts = computed(() => bsSources[activeBsTab.value].value)
     </section>
 
     <!-- 6. TESTIMONIALS -->
-    <section class="bg-white dark:bg-ink-900 py-10 md:py-14">
+    <section v-if="reviews.data?.length" class="bg-white dark:bg-ink-900 py-10 md:py-14">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="text-center mb-7">
           <span class="inline-flex items-center gap-1.5 h-6 px-2 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10.5px] font-black uppercase tracking-wider ring-1 ring-amber-500/20">
@@ -243,44 +262,24 @@ const activeProducts = computed(() => bsSources[activeBsTab.value].value)
             </div>
             <span class="text-[14px] font-black text-ink-900 dark:text-white tabular-nums">4.9<span class="text-ink-400">/5.0</span></span>
             <span class="w-px h-4 bg-ink-200 dark:bg-ink-700"></span>
-            <span class="text-[12px] text-ink-500 dark:text-ink-400 font-semibold">2 384 rəy</span>
+            <span class="text-[12px] text-ink-500 dark:text-ink-400 font-semibold">{{ reviews.meta?.total }} rəy</span>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <article class="relative p-5 rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 hover:ring-brand-500/50 transition">
+          <article v-for="(row, i) in reviews.data" :key="row.id" class="relative p-5 rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 hover:ring-brand-500/50 transition">
             <svg aria-hidden="true" class="absolute top-4 right-4 w-6 h-6 text-brand-500/15" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10H0z"/></svg>
             <div class="flex items-center gap-1 mb-3">
               <svg v-for="n in 5" :key="n" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
             </div>
-            <p class="text-[13px] text-ink-700 dark:text-ink-200 leading-relaxed">"PUBG UC-ni 30 saniyə içində aldım. Çox sürətli və problemsiz!"</p>
+            <p class="text-[13px] text-ink-700 dark:text-ink-200 leading-relaxed line-clamp-4">"{{ row.comment }}"</p>
             <div class="mt-4 flex items-center gap-2.5">
-              <span class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-[#FF6A2E] grid place-items-center text-white font-black text-[12px] shadow-soft">A</span>
-              <div class="min-w-0"><div class="text-[12.5px] font-black text-ink-900 dark:text-white">Aysel M.</div><div class="text-[10.5px] text-ink-500 dark:text-ink-400">PUBG UC · 2 gün əvvəl</div></div>
-            </div>
-          </article>
-
-          <article class="relative p-5 rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 hover:ring-brand-500/50 transition">
-            <svg aria-hidden="true" class="absolute top-4 right-4 w-6 h-6 text-brand-500/15" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10H0z"/></svg>
-            <div class="flex items-center gap-1 mb-3">
-              <svg v-for="n in 5" :key="n" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-            </div>
-            <p class="text-[13px] text-ink-700 dark:text-ink-200 leading-relaxed">"Netflix Premium 12 ayı 2 dəfə ucuz aldım. Hesab 1 dəqiqədə gəldi!"</p>
-            <div class="mt-4 flex items-center gap-2.5">
-              <span class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center text-white font-black text-[12px] shadow-soft">N</span>
-              <div class="min-w-0"><div class="text-[12.5px] font-black text-ink-900 dark:text-white">Nicat A.</div><div class="text-[10.5px] text-ink-500 dark:text-ink-400">Netflix · 5 gün əvvəl</div></div>
-            </div>
-          </article>
-
-          <article class="relative p-5 rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 hover:ring-brand-500/50 transition">
-            <svg aria-hidden="true" class="absolute top-4 right-4 w-6 h-6 text-brand-500/15" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10H0z"/></svg>
-            <div class="flex items-center gap-1 mb-3">
-              <svg v-for="n in 5" :key="n" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
-            </div>
-            <p class="text-[13px] text-ink-700 dark:text-ink-200 leading-relaxed">"Instagram izləyici sifariş etdim — 24 saatda tamamlandı. Real izləyicilər, düşmür."</p>
-            <div class="mt-4 flex items-center gap-2.5">
-              <span class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-emerald-500 grid place-items-center text-white font-black text-[12px] shadow-soft">K</span>
-              <div class="min-w-0"><div class="text-[12.5px] font-black text-ink-900 dark:text-white">Kamran S.</div><div class="text-[10.5px] text-ink-500 dark:text-ink-400">SMM Panel · 1 həftə əvvəl</div></div>
+              <img v-if="row.user?.avatar" :src="row.user.avatar" :alt="row.user.name" class="w-9 h-9 rounded-full object-cover shadow-soft" />
+              <span v-else class="w-9 h-9 rounded-full bg-gradient-to-br grid place-items-center text-white font-black text-[12px] shadow-soft" :class="avatarGradients[i % avatarGradients.length]">{{ (row.user?.name || '?').charAt(0) }}</span>
+              <div class="min-w-0">
+                <div class="text-[12.5px] font-black text-ink-900 dark:text-white truncate">{{ row.user?.name }}{{ row.user?.surname ? ' ' + row.user.surname.charAt(0) + '.' : '' }}</div>
+                <div class="text-[10.5px] text-ink-500 dark:text-ink-400 truncate">{{ row.game?.category?.name || row.game?.name }} · {{ timeAgo(row.created_at) }}</div>
+              </div>
             </div>
           </article>
         </div>

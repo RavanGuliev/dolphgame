@@ -375,3 +375,68 @@ html.dark .tab-pane {
   background: #1F2937 !important;
   border-color: #374151 !important;
 }
+
+/* ============================================================
+   TOAST NOTIFICATIONS (vue3-toastify) — matched to brand/ink system.
+   Library ships with plain default styling; these rules restyle it
+   to look like the rest of the app's cards (rounded-2xl, shadow-card,
+   ink borders, brand accent), instead of the generic look.
+   ============================================================ */
+.Toastify__toast-container {
+  padding: 4px;
+  width: auto;
+  max-width: min(92vw, 380px);
+}
+.Toastify__toast {
+  min-height: unset;
+  margin-bottom: 10px;
+  padding: 13px 14px;
+  border-radius: 1rem !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 8px 24px rgba(17, 24, 39, .1) !important;
+  border: 1px solid #E5E7EB;
+  border-left-width: 3px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+html.dark .Toastify__toast {
+  background: #1F2937 !important;
+  color: #ffffff !important;
+  border-color: #374151;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25), 0 8px 24px rgba(0, 0, 0, .4) !important;
+}
+.Toastify__toast-body {
+  padding: 0;
+  margin: 0;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.Toastify__toast-icon { width: 19px; height: 19px; margin-inline-end: 0; }
+.Toastify__close-button {
+  color: #9CA3AF;
+  opacity: .8;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+.Toastify__close-button:hover { opacity: 1; color: #111827; }
+html.dark .Toastify__close-button:hover { color: #ffffff; }
+
+.Toastify__progress-bar { height: 3px; }
+.Toastify__progress-bar--bg { opacity: 1; background: #E5E7EB; }
+html.dark .Toastify__progress-bar--bg { background: #374151; }
+
+.Toastify__toast--success { border-left-color: #10B981; }
+.Toastify__toast--success .Toastify__progress-bar { background: #10B981 !important; }
+.Toastify__toast--error { border-left-color: #EF4444; }
+.Toastify__toast--error .Toastify__progress-bar { background: #EF4444 !important; }
+.Toastify__toast--warning { border-left-color: #F59E0B; }
+.Toastify__toast--warning .Toastify__progress-bar { background: #F59E0B !important; }
+.Toastify__toast--info,
+.Toastify__toast--default {
+  border-left-color: #FF4800;
+}
+.Toastify__toast--info .Toastify__progress-bar,
+.Toastify__toast--default .Toastify__progress-bar { background: #FF4800 !important; }

@@ -97,8 +97,8 @@ const descOpen = ref(false);
         </div>
       </section>
 
-      <!-- DELIVERY METHOD / GAME CARDS -->
-      <section class="mb-8">
+      <!-- DELIVERY METHOD / GAME CARDS — square icon-tile grid (pubg-mobile.html) -->
+      <section v-if="games.length" class="mb-8">
         <div class="flex items-end justify-between gap-3 mb-4">
           <div>
             <h2 class="text-[18px] md:text-[20px] font-black tracking-tight text-ink-900 dark:text-white leading-tight">Necə almaq istəyirsən?</h2>
@@ -106,32 +106,33 @@ const descOpen = ref(false);
           </div>
         </div>
 
-        <div v-if="games.length" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           <nuxt-link
             v-for="game in games"
             :key="game.id"
             :to="{ name: 'game-slug', params: { slug: game.slug } }"
-            class="group relative flex items-stretch rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 hover:ring-brand-500 hover:shadow-card transition-all duration-200 overflow-hidden"
+            class="group block"
           >
-            <div class="relative shrink-0 w-[96px] aspect-square">
-              <img :src="game.cover || game.image" :alt="game.name" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-              <div aria-hidden="true" class="absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white dark:from-ink-900 to-transparent"></div>
-            </div>
-            <div class="flex-1 min-w-0 flex items-center gap-2 px-3 py-2.5">
-              <div class="min-w-0 flex-1">
-                <h3 class="text-[13px] md:text-[13.5px] font-black text-ink-900 dark:text-white leading-tight truncate">{{ game.name }}</h3>
-                <p class="mt-1 text-[11px] text-ink-600 dark:text-ink-300 leading-snug truncate">{{ game.meta_description || (game.product_count ? game.product_count + ' məhsul' : 'Bax və seç') }}</p>
-              </div>
-              <span class="shrink-0 w-7 h-7 rounded-full bg-ink-100 dark:bg-ink-800 grid place-items-center text-ink-500 dark:text-ink-400 group-hover:bg-brand-500 group-hover:text-white transition">
+            <div
+              class="relative aspect-square rounded-2xl ring-1 ring-ink-200 dark:ring-ink-800 group-hover:ring-brand-500 group-hover:-translate-y-0.5 transition overflow-hidden grid place-items-center"
+              :class="game.type === 'e-pin' ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-amber-50 dark:bg-amber-500/10'"
+            >
+              <svg v-if="game.type === 'e-pin'" class="w-14 h-14 md:w-16 md:h-16 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <svg v-else class="w-14 h-14 md:w-16 md:h-16 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+              <span class="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-white dark:bg-ink-900 grid place-items-center text-ink-400 dark:text-ink-500 ring-1 ring-ink-200 dark:ring-ink-700 group-hover:bg-brand-500 group-hover:text-white group-hover:ring-brand-500 transition">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
               </span>
             </div>
+            <div class="mt-2.5 px-1">
+              <h3 class="text-[13px] md:text-[13.5px] font-black text-ink-900 dark:text-white truncate">{{ game.name }}</h3>
+              <p class="mt-0.5 text-[11.5px] text-ink-500 dark:text-ink-400 truncate">{{ game.meta_description || (game.product_count ? game.product_count + ' məhsul' : 'Bax və seç') }}</p>
+            </div>
           </nuxt-link>
         </div>
-        <div v-else class="rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 p-10 text-center text-[13px] text-ink-500 dark:text-ink-400">
-          Bu kateqoriyada hazırda məhsul yoxdur.
-        </div>
       </section>
+      <div v-else class="rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 p-10 text-center text-[13px] text-ink-500 dark:text-ink-400 mb-8">
+        Bu kateqoriyada hazırda məhsul yoxdur.
+      </div>
     </template>
 
     <!-- ════════════════ DIGITAL CATEGORY (dolphdigital.html) ════════════════ -->
