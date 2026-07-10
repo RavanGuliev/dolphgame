@@ -21,8 +21,8 @@ useHead({ title: "M10 QR ilə Balans Artırma" });
 const commissionRate = 0.015;
 const commission = computed(() => {
   const a = Number(amount.value) || 0;
-  const c = a * commissionRate;
-  return { amount: c, balance: a, total: a + c, label: "1,5%" };
+  const total = Math.ceil((a / (1 - commissionRate)) * 100) / 100;
+  return { amount: total - a, balance: a, total, label: "1,5%" };
 });
 
 const submitPayment = () => {

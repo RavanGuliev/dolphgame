@@ -35,32 +35,34 @@ const commissionRates = {
   gapay: { rate: 0.03, label: '3%', type: 'paid' },
 };
 
-// Calculate commission and total
+// Calculate commission and total.
+// Commission is a percentage of the final charged total (not of the balance
+// amount), so the total is grossed up: total = amount / (1 - rate).
 const commission = computed(() => {
   const amountNum = Number(amount.value) || 0;
   const method = paymentMethod.value;
-  
+
   // Check if it's a wallet method
   if (wallets.value[method]) {
-    const commissionAmount = amountNum * 0.03;
+    const total = Math.ceil((amountNum / (1 - 0.03)) * 100) / 100;
     return {
       rate: 0.03,
-      amount: commissionAmount,
+      amount: total - amountNum,
       balance: amountNum,
-      total: amountNum + commissionAmount,
+      total,
       label: '3%',
       type: 'paid'
     };
   }
-  
+
   const rateInfo = commissionRates[method as keyof typeof commissionRates] || { rate: 0.03, label: '3%', type: 'paid' };
-  const commissionAmount = amountNum * rateInfo.rate;
-  
+  const total = Math.ceil((amountNum / (1 - rateInfo.rate)) * 100) / 100;
+
   return {
     rate: rateInfo.rate,
-    amount: commissionAmount,
+    amount: total - amountNum,
     balance: amountNum,
-    total: amountNum + commissionAmount,
+    total,
     label: rateInfo.label,
     type: rateInfo.type
   };
