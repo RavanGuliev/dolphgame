@@ -74,6 +74,7 @@ export default defineNuxtConfig({
                 { src: '/js/whelp.js', async: true, tagPosition: 'bodyClose' },
                 { src: 'https://www.googletagmanager.com/gtag/js?id=G-2S7PWPTY0L', async: true },
                 { src: '/js/google.js' },
+                { src: '/js/tiktok.js', async: true },
             ],
             htmlAttrs: {
                 lang: 'az'
