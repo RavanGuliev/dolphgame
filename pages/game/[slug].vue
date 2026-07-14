@@ -198,8 +198,8 @@ useHead({
               </div>
               <!-- price -->
               <div class="flex flex-col items-end justify-center gap-1 shrink-0 w-[110px] md:w-[130px] min-h-[44px] tabular-nums text-right">
-                <span v-if="product.old_price" class="text-[11px] line-through leading-none font-semibold whitespace-nowrap text-ink-400 dark:text-ink-500">{{ fmt(product.old_price) }} AZN</span>
-                <span class="text-[15px] md:text-[17px] font-black tracking-tight whitespace-nowrap leading-none text-emerald-600 dark:text-emerald-400">{{ fmt(product.price) }} AZN</span>
+                <span v-if="product.old_price" class="text-[11px] line-through leading-none font-semibold whitespace-nowrap text-ink-400 dark:text-ink-500">{{ fmt(getQty(product) * product.old_price) }} AZN</span>
+                <span class="text-[15px] md:text-[17px] font-black tracking-tight whitespace-nowrap leading-none text-emerald-600 dark:text-emerald-400">{{ fmt(getQty(product) * product.price) }} AZN</span>
               </div>
               <!-- buy -->
               <a v-if="product.type === 'e-pin' && product.stock > 0" @click.prevent="addBasket(product.id, getQty(product))" class="ripple shine-wrap cursor-pointer h-11 w-[104px] md:w-[116px] rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-[.98] text-white text-[12.5px] md:text-[13px] font-bold flex items-center justify-center gap-1.5 shrink-0 shadow-pop transition">

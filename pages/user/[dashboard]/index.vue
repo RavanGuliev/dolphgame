@@ -4,7 +4,7 @@ import {formatDateTime} from "~/utils/dateFormatter";
 
 const {$api} = useNuxtApp()
 const userAuth = authStore()
-const {headers} = storeToRefs(userAuth)
+const {headers, user} = storeToRefs(userAuth)
 
 const statistics = await $api.get('user/statistics', headers.value)
 const recentOrders = await $api.get('user/orders?count=2', headers.value)
@@ -85,7 +85,7 @@ const orderStatus = (operation: string) => {
           <div class="relative">
             <div class="text-[11.5px] font-bold text-ink-500 dark:text-ink-400">Bonus xal</div>
             <div class="mt-1 flex items-baseline gap-1.5">
-              <span class="text-[28px] md:text-[32px] font-black text-amber-700 dark:text-amber-400 tabular-nums leading-none">{{ statistics.data.bonuses }}</span>
+              <span class="text-[28px] md:text-[32px] font-black text-amber-700 dark:text-amber-400 tabular-nums leading-none">{{ user.bonus }}</span>
               <span class="text-[12px] font-bold text-ink-500 dark:text-ink-400">xal</span>
             </div>
             <nuxt-link to="/user/dashboard/bonuses" class="mt-3 inline-flex items-center gap-1 text-[11.5px] font-bold text-amber-700 dark:text-amber-400 hover:text-amber-800 transition">

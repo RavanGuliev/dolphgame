@@ -459,21 +459,21 @@
 
   <!-- TIER 2 — MAIN HEADER (logo + big search + dual auth CTAs) -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-ink-900/95 backdrop-blur border-b border-ink-200 dark:border-ink-800">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-8">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-8">
       <!-- Mobile burger (opens left drawer with categories + menu) -->
       <button id="mobileMenuBtn" type="button" aria-label="Menyu" class="md:hidden w-10 h-10 rounded-xl bg-ink-100 dark:bg-ink-800 grid place-items-center hover:bg-ink-200 dark:hover:bg-ink-700 active:scale-95 transition shrink-0">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
 
       <!-- Logo (full wordmark visible on mobile too) -->
-      <a href="/" title="DolPh Game — Ana səhifə" class="group flex items-center gap-2 md:gap-2.5 shrink-0">
-        <span class="relative w-9 h-9 md:w-11 md:h-11 grid place-items-center group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+      <a href="/" title="DolPh Game — Ana səhifə" class="group flex items-center gap-2 md:gap-2.5 min-w-0">
+        <span class="relative w-9 h-9 md:w-11 md:h-11 grid place-items-center group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
           <img src="DolphGame_Logo_icon_1.png" alt="DolPh Game" class="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-[0_4px_12px_rgba(255,72,0,0.45)]" />
           <span aria-hidden="true" class="absolute inset-0 anim-glow-breath -z-10 bg-brand-500/40 rounded-xl blur-lg"></span>
         </span>
-        <div class="leading-tight">
-          <div class="font-black tracking-tight text-base md:text-xl text-ink-900 dark:text-white">DolPh<span class="text-brand-500">Game</span></div>
-          <div class="hidden sm:block text-[10px] text-ink-400 dark:text-ink-500 -mt-0.5 tracking-wider uppercase">Oyunçu üçün, oyunçudan</div>
+        <div class="leading-tight min-w-0">
+          <div class="font-black tracking-tight text-base md:text-xl text-ink-900 dark:text-white truncate">DolPh<span class="text-brand-500">Game</span></div>
+          <div class="hidden sm:block text-[10px] text-ink-400 dark:text-ink-500 -mt-0.5 tracking-wider uppercase truncate">Oyunçu üçün, oyunçudan</div>
         </div>
       </a>
 

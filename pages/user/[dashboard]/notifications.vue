@@ -6,6 +6,7 @@ import {paginateStore} from "~/stores/paginateStore";
 import {storeToRefs} from "pinia";
 import {useHead} from "@unhead/vue";
 import {loadingStore} from "~/stores/loadingStore";
+import {formatDateTime} from "~/utils/dateFormatter";
 const store = paginateStore()
 const {data} = storeToRefs(store)
 const notifications = ref({})
@@ -120,7 +121,7 @@ watch(data, value => {
                 <div class="min-w-0 flex-1">
                   <div class="flex items-start justify-between gap-2 flex-wrap">
                     <h3 class="text-[13.5px] font-black text-ink-900 dark:text-white">{{ notification.message }}</h3>
-                    <span class="shrink-0 text-[11px] text-ink-500 dark:text-ink-400 whitespace-nowrap">{{ notification.created_at }}</span>
+                    <span class="shrink-0 text-[11px] text-ink-500 dark:text-ink-400 whitespace-nowrap">{{ formatDateTime(notification.created_at) }}</span>
                   </div>
                   <span :class="notifBadge(notification.type)" class="mt-2 inline-flex items-center h-5 px-1.5 rounded-md text-[10px] font-black tracking-wider uppercase">{{ typeLabel(notification.type) }}</span>
                 </div>
