@@ -382,7 +382,8 @@ const socialLinks = [
     <!-- ════════ TIER 1 — TOP UTILITY BAR (shrinks 1:1 with scroll distance — no snap, no jump) ════════ -->
     <div
       v-if="tier1Progress < 1"
-      class="hidden md:block overflow-hidden bg-ink-100 dark:bg-ink-950 border-b border-ink-200 dark:border-ink-800"
+      class="hidden md:block bg-ink-100 dark:bg-ink-950 border-b border-ink-200 dark:border-ink-800"
+      :class="premiumOpen ? 'overflow-visible' : 'overflow-hidden'"
       :style="{ maxHeight: tier1MaxHeight + 'px', opacity: tier1Opacity }"
     >
       <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
