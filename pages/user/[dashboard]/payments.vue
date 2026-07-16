@@ -9,7 +9,7 @@ const store = paginateStore()
 const {data} = storeToRefs(store)
 const payments = ref({})
 const {$api} = useNuxtApp()
-const count = 4
+const count = 10
 const userAuth = authStore()
 const {headers} = storeToRefs(userAuth)
 
@@ -28,6 +28,10 @@ const paymentStatus = (operation: string) => {
 const statusGroup = (operation: string) => {
   if (operation === 'processing' || operation === 'canceled') return operation
   return 'confirmed'
+}
+const brokenInvoices = ref(new Set<number>())
+const onInvoiceError = (id: number) => {
+  brokenInvoices.value.add(id)
 }
 const activeTab = ref('all')
 const tabCount = (tab: string) => {
@@ -92,7 +96,7 @@ watch(data, value => {
             <div v-for="payment in filteredPayments" :key="payment.id"
                  class="flex items-center gap-3 px-5 py-3.5">
               <span class="shrink-0 w-11 h-11 rounded-xl bg-ink-100 dark:bg-ink-800 grid place-items-center overflow-hidden">
-                <img v-if="payment.invoice" :src="payment.invoice" class="w-full h-full object-cover"/>
+                <img v-if="payment.invoice && !brokenInvoices.has(payment.id)" :src="payment.invoice" @error="onInvoiceError(payment.id)" class="w-full h-full object-cover"/>
                 <svg v-else class="w-5 h-5 text-ink-500 dark:text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 12h20"/></svg>
               </span>
               <div class="min-w-0 flex-1">

@@ -320,17 +320,40 @@ const onKey = (e: KeyboardEvent) => {
 // Allow other parts of the app (e.g. the auth middleware) to open the modal
 const onOpenAuthEvent = (e: any) => openAuth(e?.detail === "signup" ? "signup" : "login");
 
+// ---------------- Scroll state ----------------
+// Tracks raw scroll position (rAF-throttled) so the top bar shrinks smoothly
+// in lockstep with the user's scroll gesture instead of snapping at a threshold.
+const scrollY = ref(0);
+const isScrolled = computed(() => scrollY.value > 8);
+// 0 = fully expanded top bar, 1 = fully collapsed — reached gradually over 60px of scroll.
+const tier1Progress = computed(() => Math.min(scrollY.value / 60, 1));
+const tier1MaxHeight = computed(() => Math.round(44 * (1 - tier1Progress.value)));
+const tier1Opacity = computed(() => Number((1 - tier1Progress.value).toFixed(3)));
+
+let scrollTicking = false;
+const onScroll = () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    scrollY.value = window.scrollY;
+    scrollTicking = false;
+  });
+};
+
 onMounted(() => {
   applyTheme();
   document.addEventListener("click", onDocClick);
   document.addEventListener("keydown", onKey);
   window.addEventListener("dolph-open-auth", onOpenAuthEvent);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  scrollY.value = window.scrollY;
 });
 onBeforeUnmount(() => {
   if (!process.client) return;
   document.removeEventListener("click", onDocClick);
   document.removeEventListener("keydown", onKey);
   window.removeEventListener("dolph-open-auth", onOpenAuthEvent);
+  window.removeEventListener("scroll", onScroll);
   document.body.style.overflow = "";
 });
 
@@ -354,11 +377,14 @@ const socialLinks = [
 </script>
 
 <template>
-  <div>
-    <!-- ════════ Sticky wrapper — keeps the whole header (tier 1+2+3) fixed on scroll ════════ -->
-    <div class="sticky top-0 z-40">
-    <!-- ════════ TIER 1 — TOP UTILITY BAR ════════ -->
-    <div class="hidden md:block bg-ink-100 dark:bg-ink-950 border-b border-ink-200 dark:border-ink-800">
+  <!-- ════════ Sticky wrapper — keeps the whole header (tier 1+2+3) fixed on scroll ════════ -->
+  <div class="sticky top-0 z-40 transition-shadow duration-300 ease-out" :class="isScrolled ? 'shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]' : 'shadow-none'">
+    <!-- ════════ TIER 1 — TOP UTILITY BAR (shrinks 1:1 with scroll distance — no snap, no jump) ════════ -->
+    <div
+      v-if="tier1Progress < 1"
+      class="hidden md:block overflow-hidden bg-ink-100 dark:bg-ink-950 border-b border-ink-200 dark:border-ink-800"
+      :style="{ maxHeight: tier1MaxHeight + 'px', opacity: tier1Opacity }"
+    >
       <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between text-xs">
         <div class="flex items-center gap-5">
           <nuxt-link to="/games" class="flex items-center gap-1.5 font-semibold text-ink-600 dark:text-ink-300 hover:text-brand-500 transition">
@@ -1307,5 +1333,4 @@ const socialLinks = [
       </div>
       <div class="h-[env(safe-area-inset-bottom,0px)]"></div>
     </div>
-  </div>
 </template>
