@@ -18,9 +18,14 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 input[type="number"] { -moz-appearance: textfield; }
 
 /* Prevent iOS Safari from auto-zooming the page when a form field is
-   focused — it zooms whenever the focused field's font-size is < 16px. */
+   focused — it zooms whenever the focused field's font-size is < 16px.
+   Tailwind's `important: true` (tailwind.config.ts) puts `!important` on
+   every utility, including `text-sm`/`text-xs` on inputs, so a plain
+   `input { !important }` rule loses the specificity tie to `.text-sm`.
+   The `[class]` attribute selector bumps this rule's specificity above a
+   single class so it always wins. */
 @media (max-width: 767px) {
-  input, select, textarea { font-size: 16px !important; }
+  input[class], select[class], textarea[class] { font-size: 16px !important; }
 }
 
 /* ===== ANIMATIONS ===== */
