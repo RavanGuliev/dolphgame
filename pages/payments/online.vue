@@ -17,17 +17,12 @@ const wallets = ref([]);
 const paymentMethod = ref("epoint");
 const amount = ref("");
 const isLoading = ref(false);
-const { user } = userStore;
 const iframe = ref(null);
 const { isAndroid, isIos, isMobile } = useNuxtApp().$device;
 
 definePageMeta({
   middleware: "auth",
 });
-
-if (user?.level !== "normal") {
-  router.push("/payments");
-}
 
 // Commission rates for different payment methods
 const commissionRates = {

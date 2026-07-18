@@ -12,10 +12,8 @@ const loading = loadingStore();
 const { setLoading } = loading;
 const amount = ref("");
 const isLoading = ref(false);
-const { user } = userStore;
 
 definePageMeta({ middleware: "auth" });
-if (user?.level !== "normal") router.push("/payments");
 useHead({ title: "Birbank QR ilə Balans Artırma" });
 
 const commissionRate = 0.015;

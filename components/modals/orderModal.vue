@@ -21,7 +21,6 @@ const qty = computed<any>(() => props.qty);
 const auth = authStore();
 const { headers } = storeToRefs(auth);
 const { setUserData } = auth;
-const { user } = auth;
 const loadingStore1 = loadingStore();
 const { setLoading } = loadingStore1;
 
@@ -369,7 +368,7 @@ const makeOrder = () => {
               </button>
 
               <!-- Card (epoint) -->
-              <button v-if="user?.level === 'normal'" @click="paymentMethod = 'epoint'" type="button" class="w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition" :class="paymentMethod === 'epoint' ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'border-ink-200 dark:border-ink-700 hover:border-brand-500/50'">
+              <button @click="paymentMethod = 'epoint'" type="button" class="w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition" :class="paymentMethod === 'epoint' ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'border-ink-200 dark:border-ink-700 hover:border-brand-500/50'">
                 <span class="w-9 h-9 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 grid place-items-center shrink-0">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
                 </span>
@@ -381,7 +380,7 @@ const makeOrder = () => {
               </button>
 
               <!-- Wallets -->
-              <button v-for="(wallet, key) in (user?.level === 'normal' ? wallets : {})" :key="key" @click="paymentMethod = key" type="button" class="w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition" :class="paymentMethod === key ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'border-ink-200 dark:border-ink-700 hover:border-brand-500/50'">
+              <button v-for="(wallet, key) in wallets" :key="key" @click="paymentMethod = key" type="button" class="w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition" :class="paymentMethod === key ? 'border-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'border-ink-200 dark:border-ink-700 hover:border-brand-500/50'">
                 <span class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 grid place-items-center shrink-0">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2"/><path d="M21 12h-6a1 1 0 00-1 1v0a1 1 0 001 1h6z"/></svg>
                 </span>
