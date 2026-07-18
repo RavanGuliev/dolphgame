@@ -502,14 +502,10 @@ const socialLinks = [
 
         <!-- Logo -->
         <nuxt-link to="/" title="DolPh Game — Ana səhifə" class="group flex items-center gap-2 md:gap-2.5 min-w-0">
-          <span class="relative w-9 h-9 md:w-11 md:h-11 grid place-items-center group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
-            <img :src="data?.logo" alt="DolPh Game" class="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-[0_4px_12px_rgba(255,72,0,0.45)]" />
+          <span class="relative w-12 h-12 md:w-16 md:h-16 grid place-items-center group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300 shrink-0">
+            <img :src="data?.logo" alt="DolPh Game" class="w-11 h-11 md:w-14 md:h-14 object-contain drop-shadow-[0_4px_12px_rgba(255,72,0,0.45)]" />
             <span aria-hidden="true" class="absolute inset-0 anim-glow-breath -z-10 bg-brand-500/40 rounded-xl blur-lg"></span>
           </span>
-          <div class="leading-tight min-w-0">
-            <div class="font-black tracking-tight text-base md:text-xl text-ink-900 dark:text-white truncate">DolPh<span class="text-brand-500">Game</span></div>
-            <div class="hidden sm:block text-[10px] text-ink-400 dark:text-ink-500 -mt-0.5 tracking-wider uppercase truncate">Oyunçu üçün, oyunçudan</div>
-          </div>
         </nuxt-link>
 
         <!-- BIG SEARCH -->
