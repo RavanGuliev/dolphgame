@@ -10,7 +10,7 @@ const paymentMethods = [
   { id: "online", path: "/payments/online", image: "/img/payments/bank-karti.png", name: "Bank kartı", commission: "3%", commissionType: "paid", requiresNormal: true },
   { id: "birbank", path: "/payments/birbank", image: "/img/payments/birbank-logo.png", name: "Birbank QR", commission: "1,5%", commissionType: "free", requiresNormal: true },
   { id: "receipt", path: "/payments", image: "/img/payments/qebz.png", name: "Qəbz", commission: "0%", commissionType: "free", requiresNormal: false, time: "11:00 — 00:00" },
-  { id: "m10", path: "/payments/m10", image: "/img/payments/m10-logo.png", name: "M10 QR", commission: "1,5%", commissionType: "paid", requiresNormal: true },
+  { id: "m10", path: "/payments/m10", image: "/img/payments/m10-logo.png", name: "M10", commission: "1,5%", commissionType: "paid", requiresNormal: false },
   { id: "million", path: "/payments/million", image: "/img/payments/million-logo-new.png", name: "MilliÖN Terminal", commission: "3%", commissionType: "paid", requiresNormal: false },
   { id: "emanat", path: "/payments/emanat", image: "/img/payments/emanat-logo-new.png", name: "eManat Terminal", commission: "3%", commissionType: "paid", requiresNormal: false },
   { id: "expresspay", path: "/payments/expresspay", image: "/img/payments/expresspay-logo-new.png", name: "Expresspay Terminal", commission: "3%", commissionType: "paid", requiresNormal: false },

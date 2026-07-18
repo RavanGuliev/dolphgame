@@ -312,12 +312,12 @@ onMounted(() => {
           </section>
 
           <section class="rounded-2xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-800 p-3 space-y-2">
-            <button type="submit" class="w-full h-13 min-h-[52px] rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-[13.5px] shadow-pop active:scale-[.99] transition flex items-center justify-between gap-2 px-4">
+            <button type="submit" class="w-full h-13 min-h-[52px] rounded-xl bg-white dark:bg-ink-900 ring-1 ring-ink-200 dark:ring-ink-700 hover:ring-brand-500 hover:text-brand-500 text-ink-700 dark:text-ink-200 font-black text-[13.5px] active:scale-[.99] transition flex items-center justify-between gap-2 px-4">
               <span class="flex items-center gap-2.5">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 12h20"/></svg>
                 Balans ilə sifariş
               </span>
-              <span class="inline-flex items-center h-5 px-1.5 rounded-md bg-white/20 backdrop-blur text-white text-[10px] font-black tracking-wider uppercase">0% komissiya</span>
+              <span class="inline-flex items-center h-5 px-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-black tracking-wider uppercase">0% komissiya</span>
             </button>
 
             <button type="button" @click="sendBasketOrderOnline('epoint', 0)"
