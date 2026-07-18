@@ -50,6 +50,13 @@ const copyCardNumber = (cardNumber: string) => {
     .catch(() => $toast.error("Kopyalama zamanı xəta baş verdi"));
 };
 
+// Backend method entries aren't consistent about prop key names
+// (e.g. "Kart" vs "Kartın Nömrəsi"), so check every known variant.
+const getProp = (props: Record<string, any>, keys: string[]) =>
+  keys.map((k) => props?.[k]).find((v) => v);
+const cardNumber = (method: any) => getProp(method.props, ["Kartın Nömrəsi", "Kart"]);
+const accountHolder = (method: any) => getProp(method.props, ["Ad Soyad", "Hesab Sahibi"]);
+
 const steps = [
   { t: "Ödəniş üsulunu seçin", d: "Terminal (MilliÖN, eManat) və ya istənilən mobil bank tətbiqi ilə ödəyə bilərsiniz." },
   { t: "Kart məlumatlarını daxil edin", d: "Karta köçürmə bölməsinə keçin və yuxarıdakı kart nömrəsini daxil edin." },
@@ -118,27 +125,21 @@ const steps = [
                 <div class="font-black italic text-[18px] md:text-[20px] tracking-tight text-brand-600 dark:text-brand-400 leading-none">{{ method.name }}</div>
               </div>
 
-              <div class="relative mt-7" v-for="(prop, key) in method.props" :key="key">
-                <template v-if="key === 'Kartın Nömrəsi'">
-                  <div class="text-[10px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400 mb-2">Kart nömrəsi</div>
-                  <div class="font-mono text-xl md:text-2xl tracking-[0.18em] md:tracking-[0.24em] font-bold text-ink-900 dark:text-white select-all break-all">{{ prop }}</div>
-                </template>
+              <div class="relative mt-7" v-if="cardNumber(method)">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400 mb-2">Kart nömrəsi</div>
+                <div class="font-mono text-xl md:text-2xl tracking-[0.18em] md:tracking-[0.24em] font-bold text-ink-900 dark:text-white select-all break-all">{{ cardNumber(method) }}</div>
               </div>
 
               <div class="relative mt-6 flex items-end justify-between gap-3 flex-wrap">
-                <div class="min-w-0">
+                <div v-if="accountHolder(method)" class="min-w-0">
                   <div class="text-[10px] font-bold uppercase tracking-widest text-ink-500 dark:text-ink-400">Hesab Sahibi</div>
-                  <div class="mt-1 text-base md:text-lg font-black tracking-wide truncate">
-                    <template v-for="(prop, key) in method.props" :key="'h-' + key"><span v-if="key === 'Ad Soyad'">{{ prop }}</span></template>
-                  </div>
+                  <div class="mt-1 text-base md:text-lg font-black tracking-wide truncate">{{ accountHolder(method) }}</div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                  <template v-for="(prop, key) in method.props" :key="'c-' + key">
-                    <button v-if="key === 'Kartın Nömrəsi'" @click="copyCardNumber(prop)" type="button" class="ripple shine-wrap h-11 px-4 rounded-xl bg-ink-100 dark:bg-ink-700 hover:bg-ink-200 dark:hover:bg-ink-600 active:scale-95 text-ink-800 dark:text-ink-100 text-sm font-bold flex items-center gap-2 transition shrink-0">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                      Kopyala
-                    </button>
-                  </template>
+                  <button v-if="cardNumber(method)" @click="copyCardNumber(cardNumber(method))" type="button" class="ripple shine-wrap h-11 px-4 rounded-xl bg-ink-100 dark:bg-ink-700 hover:bg-ink-200 dark:hover:bg-ink-600 active:scale-95 text-ink-800 dark:text-ink-100 text-sm font-bold flex items-center gap-2 transition shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    Kopyala
+                  </button>
                   <label :for="'receipt-' + method.id" class="ripple shine-wrap h-11 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-95 text-white text-sm font-bold flex items-center gap-2 shadow-pop transition cursor-pointer shrink-0">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     {{ invoice_id === method.id ? 'Qəbz seçildi' : 'Qəbz seç' }}
