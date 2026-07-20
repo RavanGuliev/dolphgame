@@ -62,7 +62,6 @@ const logout = () => {
   window.location = "/" as any;
 };
 
-// ---------------- Search ----------------
 const search = ref("");
 const searchOpen = ref(false);
 const closeSearch = () => {
